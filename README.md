@@ -30,7 +30,7 @@ Database:
 - Product Listing
 - Wishlist
 - Auto Stock Check
-- Optimistic Cart
+- Optimistic Carts
 - Cart Validation
 
 ## Installation
