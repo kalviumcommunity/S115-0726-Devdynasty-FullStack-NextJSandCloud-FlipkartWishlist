@@ -1,17 +1,20 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import WishlistBadge from "../ui/WishlistBadge";
 
 function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-brand">
-        <Link to="/">Flipkart</Link>
+        <Link href="/">Flipkart</Link>
       </div>
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/signup">Signup</Link>
-        <Link to="/wishlist">Wishlist</Link>
-        <Link to="/cart">Cart</Link>
+        <Link href="/">Home</Link>
+        <Link href="/login">Login</Link>
+        <Link href="/signup">Signup</Link>
+        <Link href="/wishlist">
+          Wishlist <WishlistBadge />
+        </Link>
+        <Link href="/cart">Cart</Link>
       </nav>
     </header>
   );

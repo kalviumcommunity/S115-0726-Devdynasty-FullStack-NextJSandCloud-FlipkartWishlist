@@ -1,11 +1,22 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 async function request(endpoint, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  // Add auth token if available
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch(`${API_URL}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
     ...options,
+    headers,
   });
 
   if (!response.ok) {
@@ -13,7 +24,9 @@ async function request(endpoint, options = {}) {
     throw new Error(errorText || "API request failed");
   }
 
-  return response.json();
+  // Some responses might be empty (e.g., 204 No Content)
+  const text = await response.text();
+  return text ? JSON.parse(text) : {};
 }
 
 export function get(endpoint) {
@@ -22,4 +35,8 @@ export function get(endpoint) {
 
 export function post(endpoint, data) {
   return request(endpoint, { method: "POST", body: JSON.stringify(data) });
+}
+
+export function del(endpoint) {
+  return request(endpoint, { method: "DELETE" });
 }
