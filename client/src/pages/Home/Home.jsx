@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
 import { get } from "../../services/api";
 import SearchBar from "../../components/ui/SearchBar";
