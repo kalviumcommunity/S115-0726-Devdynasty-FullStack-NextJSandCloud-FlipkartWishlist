@@ -8,7 +8,7 @@ Flipkart wants a wishlist that automatically checks stock every 30 seconds for w
 
 - Pratite Acharya
 - Sasmit Narnaware
-- Atharva Hargude
+- Atharva Nitin Hargude
 
 ## Tech Stack
 

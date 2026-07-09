@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Navbar from "./components/layout/Navbar";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
@@ -10,12 +11,14 @@ import ProductDetails from "./pages/ProductDetails/ProductDetails";
 function App() {
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/product/:id" element={<ProductDetails />} />
       </Routes>
     </BrowserRouter>
