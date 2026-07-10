@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { post } from "../../services/api";
-import Navbar from "../../components/layout/Navbar";
+import Navbar from "@/components/layout/Navbar";
 
 export default function Login() {
   const router = useRouter();
