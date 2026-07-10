@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import StockBadge from "@/components/ui/StockBadge";
-import { get } from "@/services/api";
+import { get, post } from "@/services/api";
 
 export default function ProductDetails({ params }) {
   const resolvedParams = use(params);
@@ -28,6 +28,16 @@ export default function ProductDetails({ params }) {
 
     loadProduct();
   }, [id]);
+
+  const handleAddWishlist = async () => {
+    try {
+      await post("/api/wishlist", { productId: parseInt(id) });
+      window.dispatchEvent(new Event("wishlist_updated"));
+      alert("Added to wishlist!");
+    } catch (err) {
+      alert("Failed to add to wishlist: " + err.message);
+    }
+  };
 
   const imageUrl = product?.image || product?.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
   const price = typeof product?.price === "number" ? product.price : Number(product?.price || 0);
@@ -61,7 +71,7 @@ export default function ProductDetails({ params }) {
                 <button type="button" className="primary-btn">
                   Add to cart
                 </button>
-                <button type="button" className="secondary-btn">
+                <button type="button" className="secondary-btn" onClick={handleAddWishlist}>
                   Save to wishlist
                 </button>
               </div>

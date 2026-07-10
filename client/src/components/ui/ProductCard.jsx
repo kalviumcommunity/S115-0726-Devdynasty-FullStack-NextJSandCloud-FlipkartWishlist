@@ -15,6 +15,7 @@ function ProductCard({ product }) {
         width={320}
         height={220}
         className="product-card-image"
+        style={{ width: '100%', height: 'auto' }}
       />
       <div className="product-card-body">
         <div className="product-card-header">
