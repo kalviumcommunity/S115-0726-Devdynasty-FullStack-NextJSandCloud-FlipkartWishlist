@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
-import { get } from "../../../services/api";
-import Navbar from "../../../components/layout/Navbar";
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import StockBadge from "@/components/ui/StockBadge";
+import { get } from "@/services/api";
 
 export default function ProductDetails({ params }) {
   const resolvedParams = use(params);
   const id = resolvedParams.id;
-  
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,8 +19,8 @@ export default function ProductDetails({ params }) {
       try {
         const data = await get(`/api/products/${id}`);
         setProduct(data);
-      } catch (error) {
-        setError(error.message || "Unable to fetch product details.");
+      } catch (err) {
+        setError(err.message || "Unable to fetch product details.");
       } finally {
         setLoading(false);
       }
@@ -27,45 +29,45 @@ export default function ProductDetails({ params }) {
     loadProduct();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div>
-        <Navbar />
-        <p>Loading product...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
-        <Navbar />
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div>
-        <Navbar />
-        <p>Product not found.</p>
-      </div>
-    );
-  }
+  const imageUrl = product?.image || product?.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
+  const price = typeof product?.price === "number" ? product.price : Number(product?.price || 0);
 
   return (
-    <div>
+    <div className="page-shell">
       <Navbar />
-      <main className="product-details-page" style={{ padding: '20px' }}>
-        <div className="product-details-card">
-          <img src={product.image || product.imageUrl} alt={product.title || product.name} style={{ maxWidth: '300px' }} />
-          <div className="product-details-info">
-            <h1>{product.title || product.name}</h1>
-            <p>{product.description}</p>
-            <p className="price">₹{product.price}</p>
+      <main className="product-details-page">
+        <Link href="/" className="back-link">
+          ← Back to home
+        </Link>
+
+        {loading ? (
+          <p className="empty-state">Loading product...</p>
+        ) : error ? (
+          <p className="empty-state">{error}</p>
+        ) : !product ? (
+          <p className="empty-state">Product not found.</p>
+        ) : (
+          <div className="product-details-card">
+            <img src={imageUrl} alt={product.title || product.name} className="product-details-image" />
+            <div className="product-details-info">
+              <p className="hero-eyebrow">{product.category || "Featured product"}</p>
+              <h1>{product.title || product.name}</h1>
+              <p className="product-card-description">{product.description}</p>
+              <div className="product-card-meta">
+                <p className="price">₹{price.toFixed(2)}</p>
+                <StockBadge stock={product.stock ?? 0} />
+              </div>
+              <div className="detail-actions">
+                <button type="button" className="primary-btn">
+                  Add to cart
+                </button>
+                <button type="button" className="secondary-btn">
+                  Save to wishlist
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

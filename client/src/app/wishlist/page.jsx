@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { get, del } from "../../../services/api";
-import WishlistCard from "../../../components/ui/WishlistCard";
-import Navbar from "../../../components/layout/Navbar";
+import { get, del } from "@/services/api";
+import WishlistCard from "@/components/ui/WishlistCard";
+import Navbar from "@/components/layout/Navbar";
 
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
