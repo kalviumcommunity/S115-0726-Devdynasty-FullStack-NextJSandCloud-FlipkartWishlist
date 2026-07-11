@@ -18,6 +18,11 @@ app.use("/api/test", testRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/cart", cartRoutes);
 
+// Direct alias routes for /login and /signup
+const { login, signup } = require("./controllers/authController");
+app.post("/login", login);
+app.post("/signup", signup);
+
 app.get("/", (req, res) => {
   res.send("API Running");
 });

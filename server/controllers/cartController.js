@@ -3,7 +3,7 @@ const prisma = require("../prismaClient");
 // Get all cart items for a user
 exports.getCart = async (req, res) => {
   try {
-    const userId = Number(req.query.userId);
+    const userId = req.user ? (req.user.userId || req.user.id) : Number(req.query.userId);
 
     if (Number.isNaN(userId)) {
       return res.status(400).json({ error: "Invalid user id." });
@@ -27,6 +27,11 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
+    const user_id = req.user ? (req.user.userId || req.user.id) : Number(userId);
+
+    if (Number.isNaN(user_id)) {
+      return res.status(400).json({ error: "Invalid user id." });
+    }
 
     const product = await prisma.product.findUnique({
       where: { id: Number(productId) },
@@ -40,20 +45,30 @@ exports.addToCart = async (req, res) => {
       return res.status(400).json({ error: "Out of Stock." });
     }
 
+    const reqQty = Number(quantity) || 1;
+    if (reqQty < 1) {
+      return res.status(400).json({ error: "Quantity must be at least 1." });
+    }
+
     const existingItem = await prisma.cart.findUnique({
       where: {
         userId_productId: {
-          userId: Number(userId),
+          userId: Number(user_id),
           productId: Number(productId),
         },
       },
     });
 
+    const totalRequested = (existingItem ? existingItem.quantity : 0) + reqQty;
+    if (totalRequested > product.stock) {
+      return res.status(400).json({ error: `Only ${product.stock} items available in stock.` });
+    }
+
     if (existingItem) {
       const updated = await prisma.cart.update({
         where: { id: existingItem.id },
         data: {
-          quantity: existingItem.quantity + (quantity || 1),
+          quantity: totalRequested,
         },
       });
 
@@ -62,9 +77,9 @@ exports.addToCart = async (req, res) => {
 
     const cart = await prisma.cart.create({
       data: {
-        userId: Number(userId),
+        userId: Number(user_id),
         productId: Number(productId),
-        quantity: quantity || 1,
+        quantity: reqQty,
       },
     });
 
@@ -81,14 +96,41 @@ exports.updateCart = async (req, res) => {
     const id = Number(req.params.id);
     const { quantity } = req.body;
 
-    const cart = await prisma.cart.update({
+    const cartItem = await prisma.cart.findUnique({
+      where: { id },
+      include: { product: true },
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({ error: "Cart item not found." });
+    }
+
+    const user_id = req.user ? (req.user.userId || req.user.id) : null;
+    if (user_id && cartItem.userId !== user_id) {
+      return res.status(403).json({ error: "Forbidden: You do not own this cart item." });
+    }
+
+    const reqQty = Number(quantity);
+    if (Number.isNaN(reqQty) || reqQty < 1) {
+      return res.status(400).json({ error: "Quantity must be at least 1." });
+    }
+
+    const product = cartItem.product || await prisma.product.findUnique({
+      where: { id: cartItem.productId },
+    });
+
+    if (product && reqQty > product.stock) {
+      return res.status(400).json({ error: `Only ${product.stock} items available in stock.` });
+    }
+
+    const updated = await prisma.cart.update({
       where: { id },
       data: {
-        quantity,
+        quantity: reqQty,
       },
     });
 
-    return res.json(cart);
+    return res.json(updated);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Unable to update cart." });
@@ -99,6 +141,19 @@ exports.updateCart = async (req, res) => {
 exports.removeCartItem = async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    const cartItem = await prisma.cart.findUnique({
+      where: { id },
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({ error: "Cart item not found." });
+    }
+
+    const user_id = req.user ? (req.user.userId || req.user.id) : null;
+    if (user_id && cartItem.userId !== user_id) {
+      return res.status(403).json({ error: "Forbidden: You do not own this cart item." });
+    }
 
     await prisma.cart.delete({
       where: { id },

@@ -40,3 +40,7 @@ export function post(endpoint, data) {
 export function del(endpoint) {
   return request(endpoint, { method: "DELETE" });
 }
+
+export function patch(endpoint, data) {
+  return request(endpoint, { method: "PATCH", body: JSON.stringify(data) });
+}
