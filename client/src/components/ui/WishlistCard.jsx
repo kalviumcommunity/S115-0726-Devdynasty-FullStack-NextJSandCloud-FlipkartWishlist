@@ -2,9 +2,20 @@
 
 import Link from "next/link";
 import StockBadge from "./StockBadge";
+import { post } from "@/services/api";
 
 export default function WishlistCard({ item, onRemove }) {
   const { product } = item;
+
+  const handleMoveToCart = async () => {
+    try {
+      await post("/api/cart", { productId: product.id });
+      onRemove(item.id);
+      alert("Moved to cart successfully!");
+    } catch (err) {
+      alert("Failed to move to cart: " + err.message);
+    }
+  };
 
   return (
     <div className="wishlist-card">
@@ -24,6 +35,9 @@ export default function WishlistCard({ item, onRemove }) {
         </div>
       </div>
       <div className="actions">
+        <button onClick={handleMoveToCart} className="btn-move-cart">
+          Move To Cart
+        </button>
         <button onClick={() => onRemove(item.id)} className="btn-remove">
           Remove
         </button>
@@ -68,6 +82,21 @@ export default function WishlistCard({ item, onRemove }) {
         }
         .actions {
           margin-left: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .btn-move-cart {
+          background-color: #2874f0;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-move-cart:hover {
+          background-color: #1e5bb8;
         }
         .btn-remove {
           background-color: transparent;

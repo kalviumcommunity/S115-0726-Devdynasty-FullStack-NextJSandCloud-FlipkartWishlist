@@ -6,19 +6,29 @@ import { get } from "../../services/api";
 function WishlistBadge() {
   const [count, setCount] = useState(0);
 
-  // We should ideally use a context for this to update automatically when items are added,
-  // but for simplicity, we'll fetch it once on mount and optionally poll or listen to events.
   useEffect(() => {
     async function fetchWishlist() {
+      if (typeof window === "undefined") return;
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setCount(0);
+        return;
+      }
+
       try {
         const data = await get("/api/wishlist");
-        setCount(data.length);
+        setCount(Array.isArray(data) ? data.length : 0);
       } catch (error) {
+        if (error.message?.includes("Authorization") || error.message?.includes("Unauthorized")) {
+          setCount(0);
+          return;
+        }
+
         console.error("Failed to load wishlist count", error);
       }
     }
 
-    // A simple custom event to trigger badge update from other components
     const handleUpdate = () => fetchWishlist();
     window.addEventListener("wishlist_updated", handleUpdate);
 
@@ -32,16 +42,21 @@ function WishlistBadge() {
   if (count === 0) return null;
 
   return (
-    <span className="badge">
-      {count}
+    <span className="badge-wrapper">
+      ❤️ <span className="badge">{count}</span>
       <style jsx>{`
+        .badge-wrapper {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin-left: 4px;
+        }
         .badge {
           background-color: #ff3f6c;
           color: white;
           border-radius: 50%;
           padding: 2px 6px;
           font-size: 12px;
-          margin-left: 4px;
         }
       `}</style>
     </span>

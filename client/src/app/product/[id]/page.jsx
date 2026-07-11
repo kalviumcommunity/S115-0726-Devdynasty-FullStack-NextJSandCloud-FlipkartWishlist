@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
-import { get, post } from "../../../services/api";
-import Navbar from "../../../components/layout/Navbar";
-import StockBadge from "../../../components/ui/StockBadge";
+import Link from "next/link";
+import React, { use, useEffect, useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import StockBadge from "@/components/ui/StockBadge";
+import { get, post } from "@/services/api";
 
 export default function ProductDetails({ params }) {
   const resolvedParams = use(params);
   const id = resolvedParams.id;
-  
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,8 +20,8 @@ export default function ProductDetails({ params }) {
       try {
         const data = await get(`/api/products/${id}`);
         setProduct(data);
-      } catch (error) {
-        setError(error.message || "Unable to fetch product details.");
+      } catch (err) {
+        setError(err.message || "Unable to fetch product details.");
       } finally {
         setLoading(false);
       }
@@ -71,7 +72,7 @@ export default function ProductDetails({ params }) {
         <Navbar />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '100px' }}>
           <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>
-          <a href="/" style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>Back to Home</a>
+          <Link href="/" style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>Back to Home</Link>
         </div>
       </div>
     );
@@ -88,13 +89,19 @@ export default function ProductDetails({ params }) {
     );
   }
 
+  const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
+  const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
+
   return (
-    <div>
+    <div className="page-shell">
       <Navbar />
       <main className="product-details-container">
+        <Link href="/" className="back-link">
+          ← Back to home
+        </Link>
         <div className="product-details-card">
           <div className="product-img-section">
-            <img src={product.image || product.imageUrl} alt={product.title} className="product-details-img" />
+            <img src={imageUrl} alt={product.title || product.name} className="product-details-img" />
           </div>
           <div className="product-details-info">
             <div className="category-row">
@@ -103,7 +110,7 @@ export default function ProductDetails({ params }) {
             </div>
             <h1 className="product-title">{product.title || product.name}</h1>
             <p className="product-desc">{product.description}</p>
-            <p className="product-price">₹{product.price.toLocaleString("en-IN")}</p>
+            <p className="product-price">₹{price.toLocaleString("en-IN")}</p>
             
             <div className="product-actions">
               <button

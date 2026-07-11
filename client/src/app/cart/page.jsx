@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Navbar from "../../components/layout/Navbar";
-import CartCard from "../../components/cart/CartCard";
-import PriceSummary from "../../components/cart/PriceSummary";
-import CheckoutButton from "../../components/cart/CheckoutButton";
-import EmptyCart from "../../components/cart/EmptyCart";
-import { get, del, patch } from "../../services/api";
+import Navbar from "@/components/layout/Navbar";
+import CartCard from "@/components/cart/CartCard";
+import PriceSummary from "@/components/cart/PriceSummary";
+import CheckoutButton from "@/components/cart/CheckoutButton";
+import EmptyCart from "@/components/cart/EmptyCart";
+import { get, del, patch } from "@/services/api";
 
 export default function CartPage() {
   const [items, setItems] = useState([]);
