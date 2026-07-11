@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import StockBadge from "@/components/ui/StockBadge";
 import { get, post } from "@/services/api";
@@ -13,6 +13,7 @@ export default function ProductDetails({ params }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     async function loadProduct() {
@@ -29,55 +30,234 @@ export default function ProductDetails({ params }) {
     loadProduct();
   }, [id]);
 
-  const handleAddWishlist = async () => {
+  const handleAddToCart = async () => {
+    setActionLoading(true);
     try {
-      await post("/api/wishlist", { productId: parseInt(id) });
-      window.dispatchEvent(new Event("wishlist_updated"));
-      alert("Added to wishlist!");
+      await post("/api/cart", { productId: Number(id), quantity: 1 });
+      alert("🛒 Product added to cart successfully!");
     } catch (err) {
-      alert("Failed to add to wishlist: " + err.message);
+      alert(err.message || "Failed to add product to cart. Please log in.");
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const imageUrl = product?.image || product?.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
-  const price = typeof product?.price === "number" ? product.price : Number(product?.price || 0);
+  const handleAddToWishlist = async () => {
+    setActionLoading(true);
+    try {
+      await post("/api/wishlist", { productId: Number(id) });
+      alert("❤️ Product added to wishlist successfully!");
+      window.dispatchEvent(new Event("wishlist_updated"));
+    } catch (err) {
+      alert(err.message || "Failed to add product to wishlist. Please log in.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <p>Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Navbar />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '100px' }}>
+          <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>
+          <Link href="/" style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>Back to Home</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div>
+        <Navbar />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <p>Product not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
+  const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
 
   return (
     <div className="page-shell">
       <Navbar />
-      <main className="product-details-page">
+      <main className="product-details-container">
         <Link href="/" className="back-link">
           ← Back to home
         </Link>
-
-        {loading ? (
-          <p className="empty-state">Loading product...</p>
-        ) : error ? (
-          <p className="empty-state">{error}</p>
-        ) : !product ? (
-          <p className="empty-state">Product not found.</p>
-        ) : (
-          <div className="product-details-card">
-            <img src={imageUrl} alt={product.title || product.name} className="product-details-image" />
-            <div className="product-details-info">
-              <p className="hero-eyebrow">{product.category || "Featured product"}</p>
-              <h1>{product.title || product.name}</h1>
-              <p className="product-card-description">{product.description}</p>
-              <div className="product-card-meta">
-                <p className="price">₹{price.toFixed(2)}</p>
-                <StockBadge stock={product.stock ?? 0} />
-              </div>
-              <div className="detail-actions">
-                <button type="button" className="primary-btn">
-                  Add to cart
-                </button>
-                <button type="button" className="secondary-btn" onClick={handleAddWishlist}>
-                  Save to wishlist
-                </button>
-              </div>
+        <div className="product-details-card">
+          <div className="product-img-section">
+            <img src={imageUrl} alt={product.title || product.name} className="product-details-img" />
+          </div>
+          <div className="product-details-info">
+            <div className="category-row">
+              <span className="product-category-tag">{product.category || "General"}</span>
+              <StockBadge stock={product.stock ?? 0} />
+            </div>
+            <h1 className="product-title">{product.title || product.name}</h1>
+            <p className="product-desc">{product.description}</p>
+            <p className="product-price">₹{price.toLocaleString("en-IN")}</p>
+            
+            <div className="product-actions">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={actionLoading || product.stock === 0}
+                className="btn-add-to-cart"
+              >
+                {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+              </button>
+              <button
+                type="button"
+                onClick={handleAddToWishlist}
+                disabled={actionLoading}
+                className="btn-add-to-wishlist"
+              >
+                Add to Wishlist
+              </button>
             </div>
           </div>
-        )}
+        </div>
+
+        <style jsx>{`
+          .product-details-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 24px;
+          }
+          .product-details-card {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+          }
+          .product-img-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            height: 350px;
+          }
+          .product-details-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+          }
+          .product-details-info {
+            display: flex;
+            flex-direction: column;
+          }
+          .category-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          }
+          .product-category-tag {
+            font-size: 13px;
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+          .product-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--foreground);
+            margin: 0 0 12px 0;
+            line-height: 1.3;
+          }
+          .product-desc {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+          }
+          .product-price {
+            font-size: 32px;
+            font-weight: 850;
+            color: var(--primary);
+            margin: 0 0 32px 0;
+          }
+          .product-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: auto;
+          }
+          .btn-add-to-cart {
+            flex: 1;
+            background: #fb641b;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px -1px rgba(251, 100, 27, 0.2);
+            transition: all 0.2s;
+          }
+          .btn-add-to-cart:hover:not(:disabled) {
+            background: #f3580b;
+            box-shadow: 0 8px 12px -3px rgba(251, 100, 27, 0.3);
+          }
+          .btn-add-to-cart:disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+          }
+          .btn-add-to-wishlist {
+            flex: 1;
+            background: white;
+            color: var(--foreground);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 750;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+          }
+          .btn-add-to-wishlist:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+          }
+          @media (max-width: 768px) {
+            .product-details-card {
+              grid-template-columns: 1fr;
+              padding: 20px;
+            }
+            .product-img-section {
+              height: 250px;
+            }
+          }
+        `}</style>
       </main>
     </div>
   );

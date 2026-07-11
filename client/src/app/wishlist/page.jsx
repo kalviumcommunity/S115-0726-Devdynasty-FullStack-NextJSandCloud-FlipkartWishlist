@@ -26,7 +26,7 @@ export default function WishlistPage() {
         setLoading(false);
       }
     }
-    
+
     fetchWishlist();
   }, []);
 
@@ -37,9 +37,9 @@ export default function WishlistPage() {
 
       try {
         const stockData = await get("/api/wishlist/check-stock");
-        
+
         // Update wishlist items with new stock values
-        setWishlist(prevWishlist => 
+        setWishlist(prevWishlist =>
           prevWishlist.map(item => {
             const newStock = stockData[item.productId];
             if (newStock !== undefined && item.product.stock !== newStock) {
@@ -77,7 +77,7 @@ export default function WishlistPage() {
       <Navbar />
       <main className="wishlist-container">
         <h1>My Wishlist</h1>
-        
+
         {loading ? (
           <div className="loading-container">
             <div className="spinner"></div>
@@ -93,10 +93,10 @@ export default function WishlistPage() {
         ) : (
           <div className="wishlist-grid">
             {wishlist.map(item => (
-              <WishlistCard 
-                key={item.id} 
-                item={item} 
-                onRemove={handleRemove} 
+              <WishlistCard
+                key={item.id}
+                item={item}
+                onRemove={handleRemove}
               />
             ))}
           </div>
