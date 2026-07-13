@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = "";
 
 async function request(endpoint, options = {}) {
   const headers = {
@@ -39,4 +39,8 @@ export function post(endpoint, data) {
 
 export function del(endpoint) {
   return request(endpoint, { method: "DELETE" });
+}
+
+export function patch(endpoint, data) {
+  return request(endpoint, { method: "PATCH", body: JSON.stringify(data) });
 }

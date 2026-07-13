@@ -20,7 +20,7 @@ function WishlistBadge() {
         const data = await get("/api/wishlist");
         setCount(Array.isArray(data) ? data.length : 0);
       } catch (error) {
-        if (error.message?.includes("Authorization")) {
+        if (error.message?.includes("Authorization") || error.message?.includes("Unauthorized")) {
           setCount(0);
           return;
         }
@@ -42,16 +42,21 @@ function WishlistBadge() {
   if (count === 0) return null;
 
   return (
-    <span className="badge">
-      {count}
+    <span className="badge-wrapper">
+      ❤️ <span className="badge">{count}</span>
       <style jsx>{`
+        .badge-wrapper {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin-left: 4px;
+        }
         .badge {
           background-color: #ff3f6c;
           color: white;
           border-radius: 50%;
           padding: 2px 6px;
           font-size: 12px;
-          margin-left: 4px;
         }
       `}</style>
     </span>
