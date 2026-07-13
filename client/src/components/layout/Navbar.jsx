@@ -13,9 +13,10 @@ function Navbar({ searchValue = "", onSearchChange }) {
       <div className="navbar-search">
         <input
           type="search"
-          placeholder="Search products..."
+          placeholder="Search products, brands, or categories"
           value={searchValue}
           onChange={(event) => onSearchChange?.(event.target.value)}
+          aria-label="Search products"
         />
       </div>
 

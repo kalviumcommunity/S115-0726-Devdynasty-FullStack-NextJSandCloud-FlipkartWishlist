@@ -9,18 +9,18 @@ function ProductCard({ product }) {
 
   return (
     <article className="product-card">
-      <Image
-        src={imageUrl}
-        alt={title}
-        width={320}
-        height={220}
-        className="product-card-image"
-      />
+      <div className="product-card-image-wrapper">
+        <Image
+          src={imageUrl}
+          alt={title}
+          width={320}
+          height={220}
+          className="product-card-image"
+        />
+        <div className="product-card-badge">{product.category || "General"}</div>
+      </div>
       <div className="product-card-body">
-        <div className="product-card-header">
-          <h3>{title}</h3>
-          <span className="product-card-category">{product.category || "General"}</span>
-        </div>
+        <h3>{title}</h3>
 
         <p className="product-card-description">
           {product.description || "High-quality product ready to ship."}

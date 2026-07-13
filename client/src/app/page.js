@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import ProductCard from "@/components/ui/ProductCard";
+import ProductSkeleton from "@/components/ui/ProductSkeleton";
 import { get } from "@/services/api";
 
 const fallbackProducts = [
@@ -134,7 +135,11 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <p className="empty-state">Loading products...</p>
+            <div className="product-grid">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProductSkeleton key={index} />
+              ))}
+            </div>
           ) : error ? (
             <p className="empty-state">{error}</p>
           ) : filteredProducts.length === 0 ? (
