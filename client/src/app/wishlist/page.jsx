@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { get, del } from "@/services/api";
 import WishlistCard from "@/components/ui/WishlistCard";
 import Navbar from "@/components/layout/Navbar";
+import EmptyWishlist from "@/components/ui/EmptyWishlist";
+import { toast } from "react-toastify";
 
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
@@ -68,7 +70,7 @@ export default function WishlistPage() {
       setWishlist(prev => prev.filter(item => item.id !== id));
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
-      alert("Failed to remove item: " + err.message);
+      toast.error("Failed to remove item: " + err.message);
     }
   };
 
@@ -86,10 +88,7 @@ export default function WishlistPage() {
         ) : error ? (
           <p className="error">{error}</p>
         ) : wishlist.length === 0 ? (
-          <div className="empty-state">
-            <p>Your wishlist is empty.</p>
-            <a href="/" className="btn-primary">Browse Products</a>
-          </div>
+          <EmptyWishlist />
         ) : (
           <div className="wishlist-grid">
             {wishlist.map(item => (
