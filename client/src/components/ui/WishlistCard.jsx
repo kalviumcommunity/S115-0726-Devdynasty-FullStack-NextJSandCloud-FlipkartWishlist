@@ -3,6 +3,7 @@
 import Link from "next/link";
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
+import { toast } from "react-toastify";
 
 export default function WishlistCard({ item, onRemove }) {
   const { product } = item;
@@ -11,9 +12,9 @@ export default function WishlistCard({ item, onRemove }) {
     try {
       await post("/api/cart", { productId: product.id });
       onRemove(item.id);
-      alert("Moved to cart successfully!");
+      toast.success("Moved to cart successfully!");
     } catch (err) {
-      alert("Failed to move to cart: " + err.message);
+      toast.error("Failed to move to cart: " + err.message);
     }
   };
 
@@ -46,71 +47,85 @@ export default function WishlistCard({ item, onRemove }) {
       <style jsx>{`
         .wishlist-card {
           display: flex;
-          border: 1px solid #eee;
-          border-radius: 8px;
-          padding: 16px;
-          margin-bottom: 16px;
+          border: 1px solid #eaeaea;
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 20px;
           align-items: center;
           background: white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .wishlist-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 15px rgba(0,0,0,0.08);
         }
         .image-container img {
-          width: 100px;
-          height: 100px;
+          width: 120px;
+          height: 120px;
           object-fit: contain;
-          border-radius: 4px;
+          border-radius: 8px;
+          background: #f8f9fa;
+          padding: 8px;
         }
         .details {
           flex: 1;
-          margin-left: 16px;
+          margin-left: 24px;
         }
         .details h3 {
-          margin: 0 0 8px 0;
-          font-size: 18px;
+          margin: 0 0 12px 0;
+          font-size: 20px;
+          font-weight: 600;
         }
         .details h3 a {
-          color: #333;
+          color: #2c3e50;
           text-decoration: none;
+          transition: color 0.2s ease;
         }
         .details h3 a:hover {
           color: #2874f0;
         }
         .price {
-          font-weight: bold;
-          font-size: 16px;
-          margin-bottom: 8px;
+          font-weight: 700;
+          font-size: 18px;
+          margin-bottom: 12px;
+          color: #2874f0;
         }
         .actions {
-          margin-left: 16px;
+          margin-left: 24px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 12px;
+          min-width: 140px;
         }
         .btn-move-cart {
           background-color: #2874f0;
           color: white;
           border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: background-color 0.2s, transform 0.1s;
         }
         .btn-move-cart:hover {
           background-color: #1e5bb8;
+          transform: scale(1.02);
         }
         .btn-remove {
-          background-color: transparent;
-          border: 1px solid #ddd;
-          color: #666;
-          padding: 8px 16px;
-          border-radius: 4px;
+          background-color: white;
+          border: 1px solid #e0e0e0;
+          color: #757575;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
         }
         .btn-remove:hover {
-          background-color: #fef7e0;
-          color: #b06000;
-          border-color: #b06000;
+          background-color: #fff3f3;
+          color: #d32f2f;
+          border-color: #d32f2f;
         }
       `}</style>
     </div>
