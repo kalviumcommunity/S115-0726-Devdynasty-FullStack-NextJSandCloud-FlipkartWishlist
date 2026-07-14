@@ -8,7 +8,7 @@ export async function GET(request) {
     const userId = payload ? payload.userId : Number(request.nextUrl.searchParams.get("userId"));
 
     if (!userId || Number.isNaN(userId)) {
-      return NextResponse.json({ error: "Invalid user id." }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const cart = await prisma.cart.findMany({
