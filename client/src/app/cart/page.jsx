@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
-import CartCard from "@/components/cart/CartCard";
-import PriceSummary from "@/components/cart/PriceSummary";
+import CartCard from "@/components/ui/CartCard";
+import OrderSummary from "@/components/ui/OrderSummary";
 import CheckoutButton from "@/components/cart/CheckoutButton";
-import EmptyCart from "@/components/cart/EmptyCart";
+import EmptyCart from "@/components/ui/EmptyCart";
 import { get, del, patch } from "@/services/api";
 
 export default function CartPage() {
@@ -67,6 +67,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
+    if (items.length === 0) return;
     setCheckoutLoading(true);
     try {
       // Deleting cart items sequentially to simulate a checkout order placement
@@ -120,7 +121,7 @@ export default function CartPage() {
               </div>
             </div>
             <div className="cart-summary-section">
-              <PriceSummary items={items} />
+              <OrderSummary items={items} />
               <CheckoutButton
                 onClick={handleCheckout}
                 loading={checkoutLoading}
