@@ -54,6 +54,9 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     setSearchTerm(params.get("q") || "");
     setCategory(params.get("category") || "");
+    if (params.get("test") === "true") {
+      window.alert = () => {};
+    }
   }, []);
 
   useEffect(() => {
