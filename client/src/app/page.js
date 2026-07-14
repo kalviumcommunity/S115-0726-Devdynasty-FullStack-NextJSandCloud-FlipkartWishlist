@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
+import SearchBar from "@/components/ui/SearchBar";
+import CategoryFilter from "@/components/ui/CategoryFilter";
+import ProductGrid from "@/components/ui/ProductGrid";
 import ProductCard from "@/components/ui/ProductCard";
 import ProductSkeleton from "@/components/ui/ProductSkeleton";
 import { get } from "@/services/api";
@@ -38,10 +42,19 @@ const fallbackProducts = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [products, setProducts] = useState(fallbackProducts);
   const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setSearchTerm(params.get("q") || "");
+    setCategory(params.get("category") || "");
+  }, []);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -61,21 +74,47 @@ export default function Home() {
   }, []);
 
   const categories = useMemo(() => {
-    return Array.from(new Set(products.map((product) => product.category).filter(Boolean))).slice(0, 6);
+    return Array.from(new Set(products.map((product) => product.category).filter(Boolean)));
   }, [products]);
+
+  const updateFilters = (nextSearchTerm, nextCategory) => {
+    const query = {};
+    if (nextSearchTerm?.trim()) query.q = nextSearchTerm.trim();
+    if (nextCategory) query.category = nextCategory;
+
+    const search = new URLSearchParams(query).toString();
+    router.replace(`/?${search}`, { scroll: false });
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    updateFilters(value, category);
+  };
+
+  const handleCategorySelect = (value) => {
+    setCategory(value);
+    updateFilters(searchTerm, value);
+  };
+
+  const handleClearCategory = () => {
+    setCategory("");
+    updateFilters(searchTerm, "");
+  };
 
   const filteredProducts = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
-    if (!normalized) {
-      return products;
-    }
 
     return products.filter((product) => {
       const title = (product.title || product.name || "").toLowerCase();
-      const category = (product.category || "").toLowerCase();
-      return title.includes(normalized) || category.includes(normalized);
+      const categoryValue = (product.category || "").toLowerCase();
+      const matchesSearch =
+        !normalized ||
+        title.includes(normalized) ||
+        categoryValue.includes(normalized);
+      const matchesCategory = !category || product.category === category;
+      return matchesSearch && matchesCategory;
     });
-  }, [products, searchTerm]);
+  }, [products, searchTerm, category]);
 
   const featuredProducts = filteredProducts.slice(0, 3);
 
@@ -103,16 +142,14 @@ export default function Home() {
         </section>
 
         <section className="section-block">
-          <div className="section-heading">
-            <h2>Categories</h2>
-            <p>Explore products by department.</p>
-          </div>
-          <div className="categories-grid">
-            {categories.map((category) => (
-              <button key={category} type="button" className="category-chip" onClick={() => setSearchTerm(category)}>
-                {category}
-              </button>
-            ))}
+          <div className="filter-panel">
+            <SearchBar value={searchTerm} onChange={handleSearchChange} />
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={category}
+              onCategorySelect={handleCategorySelect}
+              onClear={handleClearCategory}
+            />
           </div>
         </section>
 
@@ -135,21 +172,17 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="product-grid">
+            <ProductGrid products={filteredProducts} loading={loading} error={error}>
               {Array.from({ length: 8 }).map((_, index) => (
                 <ProductSkeleton key={index} />
               ))}
-            </div>
-          ) : error ? (
-            <p className="empty-state">{error}</p>
-          ) : filteredProducts.length === 0 ? (
-            <p className="empty-state">No products match your search right now.</p>
+            </ProductGrid>
           ) : (
-            <div className="product-grid">
+            <ProductGrid products={filteredProducts} loading={loading} error={error}>
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </div>
+            </ProductGrid>
           )}
         </section>
       </main>
