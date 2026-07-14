@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { get, del } from "@/services/api";
 import WishlistCard from "@/components/ui/WishlistCard";
+import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
 import EmptyWishlist from "@/components/ui/EmptyWishlist";
 import { toast } from "react-toastify";
@@ -81,9 +82,10 @@ export default function WishlistPage() {
         <h1>My Wishlist</h1>
 
         {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Loading your wishlist...</p>
+          <div className="wishlist-grid">
+            <WishlistSkeleton />
+            <WishlistSkeleton />
+            <WishlistSkeleton />
           </div>
         ) : error ? (
           <p className="error">{error}</p>
@@ -116,52 +118,10 @@ export default function WishlistPage() {
         .error {
           color: red;
         }
-        .empty-state {
-          text-align: center;
-          padding: 64px 0;
-          background: #f9f9f9;
-          border-radius: 8px;
-        }
-        .empty-state p {
-          margin-bottom: 16px;
-          color: #666;
-        }
-        .btn-primary {
-          display: inline-block;
-          background-color: #2874f0;
-          color: white;
-          padding: 10px 20px;
-          text-decoration: none;
-          border-radius: 4px;
-          font-weight: 500;
-        }
-        .btn-primary:hover {
-          background-color: #1e5bb8;
-        }
-        .loading-container {
+        .wishlist-grid {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 64px 0;
-        }
-        .spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid #2874f0;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-bottom: 16px;
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .wishlist-grid {
-          display: grid;
           gap: 20px;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         }
       `}</style>
     </div>

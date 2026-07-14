@@ -55,6 +55,17 @@ export default function WishlistCard({ item, onRemove }) {
           background: white;
           box-shadow: 0 4px 6px rgba(0,0,0,0.04);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
+          animation: slideIn 0.4s ease-out forwards;
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .wishlist-card:hover {
           transform: translateY(-4px);
@@ -126,6 +137,28 @@ export default function WishlistCard({ item, onRemove }) {
           background-color: #fff3f3;
           color: #d32f2f;
           border-color: #d32f2f;
+        }
+        @media (max-width: 600px) {
+          .wishlist-card {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .details {
+            margin-left: 0;
+            margin-top: 16px;
+            width: 100%;
+          }
+          .actions {
+            margin-left: 0;
+            margin-top: 16px;
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+          }
+          .btn-move-cart, .btn-remove {
+            flex: 1;
+            text-align: center;
+          }
         }
       `}</style>
     </div>
