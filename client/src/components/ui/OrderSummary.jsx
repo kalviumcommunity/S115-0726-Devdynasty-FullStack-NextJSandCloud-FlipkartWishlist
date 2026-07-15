@@ -5,29 +5,39 @@ import React from "react";
 export default function OrderSummary({ items }) {
   // Calculations
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const deliveryThreshold = 500;
-  const deliveryCharges = subtotal >= deliveryThreshold ? 0 : 40;
-  const total = subtotal + deliveryCharges;
+  const gst = subtotal * 0.18;
+  const deliveryCharges = subtotal >= 500 ? 0 : 40;
+  const grandTotal = subtotal + gst + deliveryCharges;
 
   return (
     <div className="order-summary-card">
       <h3 className="order-summary-title">Order Summary</h3>
       <hr className="divider" />
+      
       <div className="summary-row">
         <span>Subtotal ({items.length} item{items.length !== 1 ? "s" : ""})</span>
         <span>₹{subtotal.toLocaleString("en-IN")}</span>
       </div>
+
+      <div className="summary-row">
+        <span>GST (18%)</span>
+        <span>₹{gst.toLocaleString("en-IN")}</span>
+      </div>
+
       <div className="summary-row">
         <span>Delivery Charges</span>
         <span className={deliveryCharges === 0 ? "free-delivery" : ""}>
           {deliveryCharges === 0 ? "FREE" : `₹${deliveryCharges}`}
         </span>
       </div>
+
       <hr className="divider" />
+      
       <div className="summary-row total-row">
-        <span>Total Amount</span>
-        <span>₹{total.toLocaleString("en-IN")}</span>
+        <span>Grand Total</span>
+        <span>₹{grandTotal.toLocaleString("en-IN")}</span>
       </div>
+
       {deliveryCharges === 0 && (
         <p className="delivery-savings-msg">
           🎉 Free delivery applied to this order!
