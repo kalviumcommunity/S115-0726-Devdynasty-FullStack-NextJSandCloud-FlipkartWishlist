@@ -2,19 +2,39 @@
 
 import Link from "next/link";
 import StockBadge from "./StockBadge";
-import { post } from "@/services/api";
+import { post, del } from "@/services/api";
 import { toast } from "react-toastify";
 
-export default function WishlistCard({ item, onRemove }) {
+export default function WishlistCard({ item, onRemove, onOptimisticRemove, onRestore }) {
   const { product } = item;
 
   const handleMoveToCart = async () => {
-    try {
-      await post("/api/cart", { productId: product.id });
-      onRemove(item.id);
-      toast.success("Moved to cart successfully!");
-    } catch (err) {
-      toast.error("Failed to move to cart: " + err.message);
+    if (product.stock === 0 || product.stock === "Out of stock") {
+      toast.error("Out of stock");
+      return;
+    }
+
+    if (onOptimisticRemove && onRestore) {
+      onOptimisticRemove(item.id);
+
+      try {
+        await post("/api/cart", { productId: product.id });
+        await del(`/api/wishlist/${item.id}`);
+        toast.success("Item moved successfully");
+        window.dispatchEvent(new Event("wishlist_updated"));
+      } catch (err) {
+        onRestore(item);
+        toast.error("Failed to move to cart: " + err.message);
+        toast.info("Restored to wishlist");
+      }
+    } else {
+      try {
+        await post("/api/cart", { productId: product.id });
+        onRemove(item.id);
+        toast.success("Item moved successfully");
+      } catch (err) {
+        toast.error("Failed to move to cart: " + err.message);
+      }
     }
   };
 

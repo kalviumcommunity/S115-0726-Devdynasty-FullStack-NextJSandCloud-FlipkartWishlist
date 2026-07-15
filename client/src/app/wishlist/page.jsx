@@ -7,6 +7,7 @@ import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
 import EmptyWishlist from "@/components/ui/EmptyWishlist";
 import { toast } from "react-toastify";
+import { useWishlistPolling } from "@/hooks/useWishlistPolling";
 
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
@@ -34,36 +35,15 @@ export default function WishlistPage() {
   }, []);
 
   // Polling logic for stock updates every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      if (wishlist.length === 0) return;
+  useWishlistPolling(wishlist, setWishlist);
 
-      try {
-        const stockData = await get("/api/wishlist/check-stock");
+  const handleOptimisticRemove = (id) => {
+    setWishlist((prev) => prev.filter((item) => item.id !== id));
+  };
 
-        // Update wishlist items with new stock values
-        setWishlist(prevWishlist =>
-          prevWishlist.map(item => {
-            const newStock = stockData[item.productId];
-            if (newStock !== undefined && item.product.stock !== newStock) {
-              return {
-                ...item,
-                product: {
-                  ...item.product,
-                  stock: newStock
-                }
-              };
-            }
-            return item;
-          })
-        );
-      } catch (err) {
-        console.error("Failed to check stock updates", err);
-      }
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
-  }, [wishlist.length]);
+  const handleRestore = (restoredItem) => {
+    setWishlist((prev) => [...prev, restoredItem]);
+  };
 
   const handleRemove = async (id) => {
     try {
@@ -98,6 +78,8 @@ export default function WishlistPage() {
                 key={item.id}
                 item={item}
                 onRemove={handleRemove}
+                onOptimisticRemove={handleOptimisticRemove}
+                onRestore={handleRestore}
               />
             ))}
           </div>
