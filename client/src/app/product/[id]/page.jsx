@@ -1,19 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import React, { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
-import StockBadge from "@/components/ui/StockBadge";
-import { get, post } from "@/services/api";
+import ProductDetails from "@/components/ui/ProductDetails";
+import ProductSkeleton from "@/components/ui/ProductSkeleton";
+import { get } from "@/services/api";
 
-export default function ProductDetails({ params }) {
-  const resolvedParams = use(params);
-  const id = resolvedParams.id;
-
+export default function ProductDetailsPage({ params }) {
+  const id = params?.id;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     async function loadProduct() {
@@ -21,203 +19,186 @@ export default function ProductDetails({ params }) {
         const data = await get(`/api/products/${id}`);
         setProduct(data);
       } catch (err) {
-        setError(err.message || "Unable to fetch product details.");
+        if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
+          setError("Please log in to view this product.");
+        } else {
+          setError(err.message || "Unable to fetch product details.");
+        }
       } finally {
         setLoading(false);
       }
     }
 
-    loadProduct();
+    if (id) {
+      loadProduct();
+    }
   }, [id]);
-
-  const handleAddToCart = async () => {
-    setActionLoading(true);
-    try {
-      await post("/api/cart", { productId: Number(id), quantity: 1 });
-      alert("🛒 Product added to cart successfully!");
-    } catch (err) {
-      alert(err.message || "Failed to add product to cart. Please log in.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleAddToWishlist = async () => {
-    setActionLoading(true);
-    try {
-      await post("/api/wishlist", { productId: Number(id) });
-      alert("❤️ Product added to wishlist successfully!");
-      window.dispatchEvent(new Event("wishlist_updated"));
-    } catch (err) {
-      alert(err.message || "Failed to add product to wishlist. Please log in.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
 
   if (loading) {
     return (
-      <div>
+      <div className="page-shell">
         <Navbar />
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
-          <p>Loading product...</p>
-        </div>
+        <main className="product-details-loading">
+          <div className="loading-header">
+            <div className="loading-line short" />
+            <div className="loading-line medium" />
+          </div>
+          <div className="loading-grid">
+            <ProductSkeleton />
+            <ProductSkeleton />
+          </div>
+        </main>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div>
+      <div className="page-shell">
         <Navbar />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '100px' }}>
-          <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>
-          <Link href="/" style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>Back to Home</Link>
-        </div>
+        <main className="product-details-error">
+          <p>{error}</p>
+          <Link href="/" className="return-home">
+            Back to Home
+          </Link>
+        </main>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div>
+      <div className="page-shell">
         <Navbar />
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+        <main className="product-details-error">
           <p>Product not found.</p>
-        </div>
+          <Link href="/" className="return-home">
+            Back to Home
+          </Link>
+        </main>
       </div>
     );
   }
 
-  const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/600x420?text=Flipkart";
-  const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
-
   return (
     <div className="page-shell">
       <Navbar />
+
       <main className="product-details-container">
-        <Link href="/" className="back-link">
-          ← Back to home
-        </Link>
-        <div className="product-details-card">
-          <div className="product-img-section">
-            <img src={imageUrl} alt={product.title || product.name} className="product-details-img" />
-          </div>
-          <div className="product-details-info">
-            <div className="category-row">
-              <span className="product-category-tag">{product.category || "General"}</span>
-              <StockBadge stock={product.stock ?? 0} />
-            </div>
-            <h1 className="product-title">{product.title || product.name}</h1>
-            <p className="product-desc">{product.description}</p>
-            <p className="product-price">₹{price.toLocaleString("en-IN")}</p>
-            
-            <div className="product-actions">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={actionLoading || product.stock === 0}
-                className="btn-add-to-cart"
-              >
-                {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-              </button>
-              <button
-                type="button"
-                onClick={handleAddToWishlist}
-                disabled={actionLoading}
-                className="btn-add-to-wishlist"
-              >
-                Add to Wishlist
-              </button>
-            </div>
-          </div>
+        <div className="top-row">
+          <Link href="/" className="back-link">
+            ← Back to home
+          </Link>
+          <span className="product-sku">Product ID: {product.id}</span>
         </div>
 
-        <style jsx>{`
-          .product-details-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 24px;
+        <ProductDetails product={product} />
+      </main>
+
+      <style jsx>{`
+        .product-details-container {
+          max-width: 1100px;
+          margin: 40px auto;
+          padding: 0 24px 40px;
+        }
+
+        .top-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+        }
+
+        .back-link {
+          color: var(--foreground);
+          text-decoration: none;
+          font-weight: 600;
+          padding: 8px 14px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: white;
+          transition: background-color 0.2s ease;
+        }
+
+        .back-link:hover {
+          background: #f8fafc;
+        }
+
+        .product-sku {
+          color: #64748b;
+          font-size: 0.95rem;
+        }
+
+        .product-details-loading,
+        .product-details-error {
+          max-width: 960px;
+          margin: 0 auto;
+          padding: 80px 24px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 24px;
+          text-align: center;
+        }
+
+        .loading-header {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+
+        .loading-line {
+          height: 18px;
+          background: #e2e8f0;
+          border-radius: 999px;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-line.short {
+          width: 180px;
+        }
+
+        .loading-line.medium {
+          width: 260px;
+        }
+
+        .loading-grid {
+          display: grid;
+          gap: 24px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+        }
+
+        .return-home {
+          color: white;
+          background: var(--primary);
+          padding: 12px 24px;
+          border-radius: 12px;
+          text-decoration: none;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.85;
           }
-          .product-details-card {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 40px;
-            background: white;
-            border-radius: 12px;
-            padding: 32px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+          50% {
+            opacity: 0.45;
           }
-          .product-img-section {
-            background: #f8fafc;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border);
-            height: 350px;
+        }
+
+        @media (max-width: 768px) {
+          .loading-grid {
+            grid-template-columns: 1fr;
           }
-          .product-details-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-          }
-          .product-details-info {
-            display: flex;
-            flex-direction: column;
-          }
-          .category-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-          }
-          .product-category-tag {
-            font-size: 13px;
-            background: #eff6ff;
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-          }
-          .product-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--foreground);
-            margin: 0 0 12px 0;
-            line-height: 1.3;
-          }
-          .product-desc {
-            font-size: 15px;
-            color: #475569;
-            line-height: 1.6;
-            margin: 0 0 24px 0;
-          }
-          .product-price {
-            font-size: 32px;
-            font-weight: 850;
-            color: var(--primary);
-            margin: 0 0 32px 0;
-          }
-          .product-actions {
-            display: flex;
-            gap: 16px;
-            margin-top: auto;
-          }
-          .btn-add-to-cart {
-            flex: 1;
-            background: #fb641b;
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
+        }
+      `}</style>
+    </div>
+  );
+}
             box-shadow: 0 4px 6px -1px rgba(251, 100, 27, 0.2);
             transition: all 0.2s;
           }
