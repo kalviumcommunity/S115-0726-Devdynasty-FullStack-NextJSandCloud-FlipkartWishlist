@@ -6,7 +6,6 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
-  // Add auth token if available
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
     if (token) {
@@ -19,14 +18,21 @@ async function request(endpoint, options = {}) {
     headers,
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "API request failed");
+  const text = await response.text();
+  let parsed;
+
+  try {
+    parsed = text ? JSON.parse(text) : {};
+  } catch (error) {
+    parsed = null;
   }
 
-  // Some responses might be empty (e.g., 204 No Content)
-  const text = await response.text();
-  return text ? JSON.parse(text) : {};
+  if (!response.ok) {
+    const errorMessage = parsed?.error || parsed?.message || text || response.statusText;
+    throw new Error(errorMessage || "API request failed");
+  }
+
+  return parsed || {};
 }
 
 export function get(endpoint) {
