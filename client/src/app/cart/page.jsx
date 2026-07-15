@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import CartCard from "@/components/ui/CartCard";
 import OrderSummary from "@/components/ui/OrderSummary";
@@ -9,6 +10,7 @@ import EmptyCart from "@/components/ui/EmptyCart";
 import { get, del, patch } from "@/services/api";
 
 export default function CartPage() {
+  const router = useRouter();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,21 +72,9 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (items.length === 0) return;
-    setCheckoutLoading(true);
-    try {
-      // Deleting cart items sequentially to simulate a checkout order placement
-      for (const item of items) {
-        await del(`/api/cart/${item.id}`);
-      }
-      setItems([]);
-      alert("🎉 Order placed successfully! Thank you for shopping with us.");
-    } catch (err) {
-      alert(err.message || "Failed to complete checkout.");
-    } finally {
-      setCheckoutLoading(false);
-    }
+    router.push("/checkout");
   };
 
   return (
