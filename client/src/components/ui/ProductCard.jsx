@@ -10,22 +10,38 @@ function ProductCard({ product }) {
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login";
+      return;
+    }
     try {
       await post("/api/cart", { productId: product.id, quantity: 1 });
       alert("🛒 Product added to cart successfully!");
     } catch (err) {
-      alert(err.message || "Failed to add product to cart. Please log in.");
+      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
+        window.location.href = "/login";
+      } else {
+        alert(err.message || "Failed to add product to cart. Please log in.");
+      }
     }
   };
 
   const handleAddToWishlist = async (e) => {
     e.preventDefault();
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login";
+      return;
+    }
     try {
       await post("/api/wishlist", { productId: product.id });
       alert("❤️ Product added to wishlist successfully!");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
-      alert(err.message || "Failed to add product to wishlist. Please log in.");
+      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
+        window.location.href = "/login";
+      } else {
+        alert(err.message || "Failed to add product to wishlist. Please log in.");
+      }
     }
   };
 

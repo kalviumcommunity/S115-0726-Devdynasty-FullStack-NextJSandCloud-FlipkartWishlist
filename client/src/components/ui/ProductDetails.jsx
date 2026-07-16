@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import StockBadge from "./StockBadge";
 import ProductGallery from "./ProductGallery";
 import { post } from "@/services/api";
@@ -8,6 +8,11 @@ import { post } from "@/services/api";
 function ProductDetails({ product }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(Boolean(localStorage.getItem("token")));
+  }, []);
 
   const title = product.title || product.name || "Untitled product";
   const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/800x600?text=Flipkart";
@@ -27,6 +32,10 @@ function ProductDetails({ product }) {
   }, [product, imageUrl]);
 
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      window.location.href = "/login";
+      return;
+    }
     setActionLoading(true);
     try {
       await post("/api/cart", { productId: product.id, quantity: 1 });
@@ -43,6 +52,10 @@ function ProductDetails({ product }) {
   };
 
   const handleAddToWishlist = async () => {
+    if (!isAuthenticated) {
+      window.location.href = "/login";
+      return;
+    }
     setActionLoading(true);
     try {
       await post("/api/wishlist", { productId: product.id });
@@ -97,7 +110,7 @@ function ProductDetails({ product }) {
             onClick={handleAddToCart}
             disabled={actionLoading || product.stock === 0}
           >
-            {product.stock === 0 ? "Out of stock" : "Add to Cart"}
+            {product.stock === 0 ? "Out of stock" : (isAuthenticated ? "Add to Cart" : "Login to Add to Cart")}
           </button>
           <button
             type="button"
@@ -105,7 +118,7 @@ function ProductDetails({ product }) {
             onClick={handleAddToWishlist}
             disabled={actionLoading}
           >
-            Add to Wishlist
+            {isAuthenticated ? "Add to Wishlist" : "Login to Wishlist"}
           </button>
         </div>
       </div>

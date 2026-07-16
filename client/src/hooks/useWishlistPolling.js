@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { get } from "@/services/api";
+import { toast } from "react-toastify";
 
 export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
   useEffect(() => {
@@ -18,6 +19,12 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
           prevWishlist.map((item) => {
             const newStock = stockData[item.productId];
             if (newStock !== undefined && item.product.stock !== newStock) {
+              if (newStock === 0 && item.product.stock > 0) {
+                toast.error(`"${item.product.title || item.product.name}" is now sold out!`);
+              } else if (newStock <= 3 && item.product.stock > 3) {
+                toast.warn(`"${item.product.title || item.product.name}" is running out fast!`);
+              }
+              
               return {
                 ...item,
                 product: {
