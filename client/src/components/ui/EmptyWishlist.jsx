@@ -3,43 +3,90 @@ import Link from "next/link";
 export default function EmptyWishlist() {
   return (
     <div className="empty-state">
+      <div className="empty-icon-container">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="empty-icon"
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
       <h2>Your wishlist is empty!</h2>
-      <p>Explore more and shortlist some items.</p>
+      <p>Looks like you haven't added anything to your wishlist yet.</p>
       <Link href="/" className="btn-primary">
-        Browse Products
+        Start Shopping
       </Link>
       <style jsx>{`
         .empty-state {
           text-align: center;
           padding: 64px 24px;
           background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
           margin: 40px auto;
-          max-width: 400px;
+          max-width: 480px;
+          animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .empty-icon-container {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          width: 96px;
+          height: 96px;
+          background-color: #fce8e6;
+          color: #d32f2f;
+          border-radius: 50%;
+          margin-bottom: 24px;
+          animation: pulseIcon 2s infinite;
+        }
+        @keyframes pulseIcon {
+          0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.2); }
+          70% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
         .empty-state h2 {
           margin: 0 0 12px 0;
           color: #333;
-          font-size: 22px;
+          font-size: 24px;
+          font-weight: 700;
         }
         .empty-state p {
-          margin-bottom: 24px;
+          margin-bottom: 32px;
           color: #666;
           font-size: 16px;
+          line-height: 1.5;
         }
         .btn-primary {
           display: inline-block;
           background-color: #2874f0;
           color: white;
-          padding: 12px 24px;
+          padding: 14px 32px;
           text-decoration: none;
-          border-radius: 4px;
-          font-weight: 500;
-          transition: background-color 0.2s;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 16px;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.3);
         }
         .btn-primary:hover {
           background-color: #1e5bb8;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(40, 116, 240, 0.4);
+        }
+        .btn-primary:active {
+          transform: translateY(0);
         }
       `}</style>
     </div>

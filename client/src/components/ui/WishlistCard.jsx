@@ -2,19 +2,39 @@
 
 import Link from "next/link";
 import StockBadge from "./StockBadge";
-import { post } from "@/services/api";
+import { post, del } from "@/services/api";
 import { toast } from "react-toastify";
 
-export default function WishlistCard({ item, onRemove }) {
+export default function WishlistCard({ item, onRemove, onOptimisticRemove, onRestore }) {
   const { product } = item;
 
   const handleMoveToCart = async () => {
-    try {
-      await post("/api/cart", { productId: product.id });
-      onRemove(item.id);
-      toast.success("Moved to cart successfully!");
-    } catch (err) {
-      toast.error("Failed to move to cart: " + err.message);
+    if (product.stock === 0 || product.stock === "Out of stock") {
+      toast.error("Out of stock");
+      return;
+    }
+
+    if (onOptimisticRemove && onRestore) {
+      onOptimisticRemove(item.id);
+
+      try {
+        await post("/api/cart", { productId: product.id });
+        await del(`/api/wishlist/${item.id}`);
+        toast.success("Item moved successfully");
+        window.dispatchEvent(new Event("wishlist_updated"));
+      } catch (err) {
+        onRestore(item);
+        toast.error("Failed to move to cart: " + err.message);
+        toast.info("Restored to wishlist");
+      }
+    } else {
+      try {
+        await post("/api/cart", { productId: product.id });
+        onRemove(item.id);
+        toast.success("Item moved successfully");
+      } catch (err) {
+        toast.error("Failed to move to cart: " + err.message);
+      }
     }
   };
 
@@ -55,6 +75,17 @@ export default function WishlistCard({ item, onRemove }) {
           background: white;
           box-shadow: 0 4px 6px rgba(0,0,0,0.04);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
+          animation: slideIn 0.4s ease-out forwards;
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .wishlist-card:hover {
           transform: translateY(-4px);
@@ -126,6 +157,28 @@ export default function WishlistCard({ item, onRemove }) {
           background-color: #fff3f3;
           color: #d32f2f;
           border-color: #d32f2f;
+        }
+        @media (max-width: 600px) {
+          .wishlist-card {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .details {
+            margin-left: 0;
+            margin-top: 16px;
+            width: 100%;
+          }
+          .actions {
+            margin-left: 0;
+            margin-top: 16px;
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+          }
+          .btn-move-cart, .btn-remove {
+            flex: 1;
+            text-align: center;
+          }
         }
       `}</style>
     </div>
