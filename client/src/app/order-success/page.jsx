@@ -8,6 +8,7 @@ export default function OrderSuccessPage() {
     orderId: "",
     deliveryDate: "",
     total: 0,
+    paymentMethod: "",
   });
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function OrderSuccessPage() {
           orderId: fallbackId,
           deliveryDate: formattedFallbackDate,
           total: 0,
+          paymentMethod: "cod",
         });
       }
     }
@@ -69,6 +71,14 @@ export default function OrderSuccessPage() {
                 <span className="detail-value price">₹{orderInfo.total.toLocaleString("en-IN")}</span>
               </div>
             )}
+            {orderInfo.paymentMethod && (
+              <div className="detail-row">
+                <span className="detail-label">Payment Method</span>
+                <span className="detail-value">
+                  {orderInfo.paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment"}
+                </span>
+              </div>
+            )}
           </div>
 
           <hr className="divider" />
@@ -76,6 +86,9 @@ export default function OrderSuccessPage() {
           <div className="success-actions">
             <a href="/" className="continue-btn">
               Continue Shopping
+            </a>
+            <a href="/orders" className="view-orders-btn">
+              View Orders
             </a>
           </div>
         </div>
@@ -162,6 +175,9 @@ export default function OrderSuccessPage() {
         }
         .success-actions {
           margin-top: 32px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
         .continue-btn {
           display: inline-block;
@@ -183,6 +199,23 @@ export default function OrderSuccessPage() {
         }
         .continue-btn:active {
           transform: translateY(1px);
+        }
+        .view-orders-btn {
+          display: inline-block;
+          width: 100%;
+          background: #f8fafc;
+          color: var(--foreground);
+          padding: 14px 28px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 700;
+          text-decoration: none;
+          border: 1px solid #e2e8f0;
+          transition: all 0.2s ease;
+        }
+        .view-orders-btn:hover {
+          background: #f1f5f9;
+          transform: translateY(-1px);
         }
       `}</style>
     </div>

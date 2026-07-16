@@ -111,6 +111,7 @@ export default function CheckoutPage() {
     e.preventDefault();
 
     if (items.length === 0) return;
+    if (isPlacingOrder) return;
 
     if (!validateForm()) {
       const firstError = Object.keys(errors)[0];
@@ -152,6 +153,7 @@ export default function CheckoutPage() {
           orderId,
           deliveryDate: formattedDeliveryDate,
           total: grandTotal,
+          paymentMethod,
         })
       );
 
