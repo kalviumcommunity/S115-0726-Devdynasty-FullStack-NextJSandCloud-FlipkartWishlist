@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { post } from "../../services/api";
 import Navbar from "@/components/layout/Navbar";
@@ -62,6 +63,10 @@ export default function Signup() {
           </label>
           <button type="submit">Signup</button>
         </form>
+
+        <p className="auth-toggle">
+          Already have an account? <Link href="/login">Login here</Link>
+        </p>
 
         {message && <p className="success-message">{message}</p>}
         {error && <p className="error-message">{error}</p>}
