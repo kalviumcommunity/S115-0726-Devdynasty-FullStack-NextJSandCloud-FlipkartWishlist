@@ -61,9 +61,6 @@ export default function CartPage() {
   };
 
   const handleRemove = async (itemId) => {
-    if (!confirm("Are you sure you want to remove this item from your cart?")) {
-      return;
-    }
     try {
       await del(`/api/cart/${itemId}`);
       setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
