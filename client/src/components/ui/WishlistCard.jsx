@@ -2,41 +2,11 @@
 
 import Link from "next/link";
 import StockBadge from "./StockBadge";
-import { post, del } from "@/services/api";
-import { toast } from "react-toastify";
 
-export default function WishlistCard({ item, onRemove, onOptimisticRemove, onRestore }) {
+export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving }) {
   const { product } = item;
-
-  const handleMoveToCart = async () => {
-    if (product.stock === 0 || product.stock === "Out of stock") {
-      toast.error("Out of stock");
-      return;
-    }
-
-    if (onOptimisticRemove && onRestore) {
-      onOptimisticRemove(item.id);
-
-      try {
-        await post("/api/cart", { productId: product.id });
-        await del(`/api/wishlist/${item.id}`);
-        toast.success("Item moved successfully");
-        window.dispatchEvent(new Event("wishlist_updated"));
-      } catch (err) {
-        onRestore(item);
-        toast.error("Failed to move to cart: " + err.message);
-        toast.info("Restored to wishlist");
-      }
-    } else {
-      try {
-        await post("/api/cart", { productId: product.id });
-        onRemove(item.id);
-        toast.success("Item moved successfully");
-      } catch (err) {
-        toast.error("Failed to move to cart: " + err.message);
-      }
-    }
-  };
+  const moveDisabled = isMoving || product.stock === 0 || product.stock === "Out of stock";
+  const moveLabel = product.stock === 0 || product.stock === "Out of stock" ? "Out of stock" : isMoving ? "Moving..." : "Move To Cart";
 
   return (
     <div className="wishlist-card">
@@ -56,10 +26,15 @@ export default function WishlistCard({ item, onRemove, onOptimisticRemove, onRes
         </div>
       </div>
       <div className="actions">
-        <button onClick={handleMoveToCart} className="btn-move-cart">
-          Move To Cart
+        <button
+          onClick={onMoveToCart}
+          disabled={moveDisabled}
+          className={`btn-move-cart ${moveDisabled ? "btn-disabled" : ""}`}
+          aria-busy={isMoving}
+        >
+          {moveLabel}
         </button>
-        <button onClick={() => onRemove(item.id)} className="btn-remove">
+        <button onClick={() => onRemove(item.id)} disabled={isMoving} className="btn-remove">
           Remove
         </button>
       </div>
@@ -152,6 +127,11 @@ export default function WishlistCard({ item, onRemove, onOptimisticRemove, onRes
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
+        }
+        .btn-disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+          pointer-events: none;
         }
         .btn-remove:hover {
           background-color: #fff3f3;
