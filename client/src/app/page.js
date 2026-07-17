@@ -162,8 +162,8 @@ export default function Home() {
             <p>Trending picks from our catalog.</p>
           </div>
           <div className="product-grid featured-grid">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {featuredProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} priority={index === 0} />
             ))}
           </div>
         </section>

@@ -36,25 +36,33 @@ export default function WishlistPage() {
       return;
     }
 
-    const removedIndex = wishlist.findIndex((wishItem) => wishItem.id === itemId);
+    // Step 1: Mark as moving to show loading state on the button
     pendingMovesRef.current[itemId] = true;
     setPendingMoves({ ...pendingMovesRef.current });
 
-    setWishlist((prev) => prev.filter((wishItem) => wishItem.id !== itemId));
-
     let cartAdded = false;
+    let removedIndex = -1;
 
     try {
+      // Step 2: Validate stock and add to cart first
       await post("/api/cart", { productId: item.product.id });
       cartAdded = true;
+
+      // Step 3: Optimistic UI - Remove from wishlist immediately after cart success
+      removedIndex = wishlist.findIndex((wishItem) => wishItem.id === itemId);
+      setWishlist((prev) => prev.filter((wishItem) => wishItem.id !== itemId));
+
+      // Step 4: Remove from backend wishlist
       await del(`/api/wishlist/${itemId}`);
       toast.success("Item moved successfully");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
       if (!cartAdded) {
-        restoreWishlistItem(item, removedIndex);
+        // Failed at cart stage (e.g. out of stock). Item was never removed, so no restore needed.
         toast.error("Failed to move to cart: " + err.message);
       } else {
+        // Failed at wishlist delete stage. Item was optimistically removed, so restore it.
+        restoreWishlistItem(item, removedIndex);
         toast.warn("Item was added to cart, but wishlist update failed. Refresh to sync.");
       }
     } finally {

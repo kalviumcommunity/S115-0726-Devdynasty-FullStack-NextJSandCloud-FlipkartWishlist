@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Navbar from "@/components/layout/Navbar";
 import ProductDetails from "@/components/ui/ProductDetails";
 import ProductSkeleton from "@/components/ui/ProductSkeleton";
 import { get } from "@/services/api";
 
 export default function ProductDetailsPage({ params }) {
-  const id = params?.id;
+  const resolvedParams = use(params);
+  const id = resolvedParams?.id;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
