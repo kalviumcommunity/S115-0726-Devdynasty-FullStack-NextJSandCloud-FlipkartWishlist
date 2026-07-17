@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { get, del } from "@/services/api";
+import { useEffect, useRef, useState } from "react";
+import { get, del, post } from "@/services/api";
 import WishlistCard from "@/components/ui/WishlistCard";
 import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
@@ -13,6 +13,55 @@ export default function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pendingMoves, setPendingMoves] = useState({});
+  const pendingMovesRef = useRef({});
+
+  const restoreWishlistItem = (restoredItem, index) => {
+    setWishlist((prev) => {
+      if (prev.some((item) => item.id === restoredItem.id)) {
+        return prev;
+      }
+
+      const insertionIndex = index >= 0 && index <= prev.length ? index : prev.length;
+      const nextWishlist = [...prev];
+      nextWishlist.splice(insertionIndex, 0, restoredItem);
+      return nextWishlist;
+    });
+  };
+
+  const handleMoveToCart = async (item) => {
+    const itemId = item.id;
+
+    if (pendingMovesRef.current[itemId]) {
+      return;
+    }
+
+    const removedIndex = wishlist.findIndex((wishItem) => wishItem.id === itemId);
+    pendingMovesRef.current[itemId] = true;
+    setPendingMoves({ ...pendingMovesRef.current });
+
+    setWishlist((prev) => prev.filter((wishItem) => wishItem.id !== itemId));
+
+    let cartAdded = false;
+
+    try {
+      await post("/api/cart", { productId: item.product.id });
+      cartAdded = true;
+      await del(`/api/wishlist/${itemId}`);
+      toast.success("Item moved successfully");
+      window.dispatchEvent(new Event("wishlist_updated"));
+    } catch (err) {
+      if (!cartAdded) {
+        restoreWishlistItem(item, removedIndex);
+        toast.error("Failed to move to cart: " + err.message);
+      } else {
+        toast.warn("Item was added to cart, but wishlist update failed. Refresh to sync.");
+      }
+    } finally {
+      delete pendingMovesRef.current[itemId];
+      setPendingMoves({ ...pendingMovesRef.current });
+    }
+  };
 
   // Fetch initial wishlist
   useEffect(() => {
@@ -73,13 +122,13 @@ export default function WishlistPage() {
           <EmptyWishlist />
         ) : (
           <div className="wishlist-grid">
-            {wishlist.map(item => (
+            {wishlist.map((item) => (
               <WishlistCard
                 key={item.id}
                 item={item}
                 onRemove={handleRemove}
-                onOptimisticRemove={handleOptimisticRemove}
-                onRestore={handleRestore}
+                onMoveToCart={() => handleMoveToCart(item)}
+                isMoving={Boolean(pendingMoves[item.id])}
               />
             ))}
           </div>
