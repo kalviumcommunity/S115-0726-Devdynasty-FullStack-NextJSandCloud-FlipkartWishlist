@@ -3,7 +3,7 @@ import Link from "next/link";
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 
-function ProductCard({ product }) {
+function ProductCard({ product, priority = false }) {
   const title = product.title || product.name || "Untitled product";
   const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/320x220?text=Flipkart";
   const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
@@ -54,6 +54,7 @@ function ProductCard({ product }) {
           width={320}
           height={220}
           className="product-card-image"
+          priority={priority}
         />
         <div className="product-card-badge">{product.category || "General"}</div>
       </div>

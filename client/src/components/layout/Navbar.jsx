@@ -5,11 +5,14 @@ import { useEffect, useState } from "react";
 import WishlistBadge from "../ui/WishlistBadge";
 
 function Navbar({ searchValue = "", onSearchChange }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return Boolean(localStorage.getItem("token"));
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsAuthenticated(Boolean(localStorage.getItem("token")));
+    }
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
