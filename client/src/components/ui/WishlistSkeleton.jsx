@@ -1,97 +1,26 @@
 export default function WishlistSkeleton() {
   return (
-    <div className="skeleton-card">
-      <div className="skeleton-image"></div>
-      <div className="skeleton-details">
-        <div className="skeleton-title"></div>
-        <div className="skeleton-price"></div>
-        <div className="skeleton-badge"></div>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center p-5 mb-5 bg-white border border-gray-200 rounded-xl shadow-sm animate-pulse">
+      {/* Image Skeleton */}
+      <div className="w-[120px] h-[120px] rounded-lg bg-gray-200 shrink-0"></div>
+      
+      {/* Details Skeleton */}
+      <div className="flex-1 w-full sm:w-auto mt-4 sm:mt-0 sm:ml-6">
+        {/* Title */}
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+        {/* Price */}
+        <div className="h-5 bg-gray-200 rounded w-1/4 mb-3"></div>
+        {/* Stock Badge */}
+        <div className="h-6 bg-gray-200 rounded w-20"></div>
       </div>
-      <div className="skeleton-actions">
-        <div className="skeleton-btn"></div>
-        <div className="skeleton-btn"></div>
+      
+      {/* Actions Skeleton */}
+      <div className="w-full sm:w-auto mt-4 sm:mt-0 sm:ml-6 flex flex-row sm:flex-col gap-3 min-w-[140px]">
+        {/* Move to Cart Button */}
+        <div className="h-10 bg-gray-200 rounded-md flex-1 sm:w-full"></div>
+        {/* Remove Button */}
+        <div className="h-10 bg-gray-200 rounded-md flex-1 sm:w-full"></div>
       </div>
-      <style jsx>{`
-        .skeleton-card {
-          display: flex;
-          border: 1px solid #eaeaea;
-          border-radius: 12px;
-          padding: 20px;
-          align-items: center;
-          background: white;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        }
-        .skeleton-image {
-          width: 120px;
-          height: 120px;
-          border-radius: 8px;
-          background: #e0e0e0;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        .skeleton-details {
-          flex: 1;
-          margin-left: 24px;
-        }
-        .skeleton-title {
-          width: 70%;
-          height: 24px;
-          background: #e0e0e0;
-          margin-bottom: 12px;
-          border-radius: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        .skeleton-price {
-          width: 30%;
-          height: 20px;
-          background: #e0e0e0;
-          margin-bottom: 12px;
-          border-radius: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        .skeleton-badge {
-          width: 80px;
-          height: 24px;
-          background: #e0e0e0;
-          border-radius: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        .skeleton-actions {
-          margin-left: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          min-width: 140px;
-        }
-        .skeleton-btn {
-          width: 100%;
-          height: 40px;
-          background: #e0e0e0;
-          border-radius: 6px;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        @keyframes pulse {
-          0% { background-color: #e0e0e0; }
-          50% { background-color: #f5f5f5; }
-          100% { background-color: #e0e0e0; }
-        }
-        @media (max-width: 600px) {
-          .skeleton-card {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .skeleton-details {
-            margin-left: 0;
-            margin-top: 16px;
-            width: 100%;
-          }
-          .skeleton-actions {
-            margin-left: 0;
-            margin-top: 16px;
-            width: 100%;
-            flex-direction: row;
-          }
-        }
-      `}</style>
     </div>
   );
 }

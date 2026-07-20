@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { get } from "@/services/api";
 import { toast } from "react-toastify";
 
 export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
+  const [isPolling, setIsPolling] = useState(false);
+
   useEffect(() => {
     if (wishlist.length === 0) return;
 
@@ -13,6 +15,7 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
       }
 
       try {
+        setIsPolling(true);
         const stockData = await get("/api/wishlist/check-stock");
 
         setWishlist((prevWishlist) =>
@@ -38,6 +41,8 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
         );
       } catch (err) {
         console.error("Failed to check stock updates", err);
+      } finally {
+        setIsPolling(false);
       }
     };
 
@@ -46,4 +51,6 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
     // Clear interval on unmount
     return () => clearInterval(interval);
   }, [wishlist.length, setWishlist, intervalMs]);
+
+  return isPolling;
 }
