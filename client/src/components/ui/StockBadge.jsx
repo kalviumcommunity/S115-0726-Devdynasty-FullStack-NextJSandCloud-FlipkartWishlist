@@ -21,7 +21,7 @@ export default function StockBadge({ stock }) {
   } else if (stock > 0) {
     return (
       <span className="badge low-stock">
-        🟡 Running Out Fast
+        🟡 Low Stock
         <style jsx>{`
           .low-stock {
             background-color: #fef7e0;
@@ -40,7 +40,7 @@ export default function StockBadge({ stock }) {
   } else {
     return (
       <span className="badge out-of-stock">
-        🔴 Sold Out
+        🔴 Out of Stock
         <style jsx>{`
           .out-of-stock {
             background-color: #fce8e6;
