@@ -12,7 +12,7 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
     <div className="wishlist-card">
       <div className="image-container">
         {/* Placeholder image or actual product image */}
-        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} />
+        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} style={{ width: "auto", height: "auto" }} />
       </div>
       <div className="details">
         <h3>

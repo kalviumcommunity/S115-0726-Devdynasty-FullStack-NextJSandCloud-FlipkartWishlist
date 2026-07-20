@@ -14,6 +14,7 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pendingMoves, setPendingMoves] = useState({});
+  const [restoringItems, setRestoringItems] = useState({});
   const pendingMovesRef = useRef({});
 
   const restoreWishlistItem = (restoredItem, index) => {
@@ -27,6 +28,16 @@ export default function WishlistPage() {
       nextWishlist.splice(insertionIndex, 0, restoredItem);
       return nextWishlist;
     });
+
+    // Add beautiful skeleton loader for restored item to maintain smooth transition
+    setRestoringItems((prev) => ({ ...prev, [restoredItem.id]: true }));
+    setTimeout(() => {
+      setRestoringItems((prev) => {
+        const next = { ...prev };
+        delete next[restoredItem.id];
+        return next;
+      });
+    }, 1500);
   };
 
   const handleMoveToCart = async (item) => {
@@ -92,7 +103,7 @@ export default function WishlistPage() {
   }, []);
 
   // Polling logic for stock updates every 30 seconds
-  useWishlistPolling(wishlist, setWishlist);
+  const isPolling = useWishlistPolling(wishlist, setWishlist);
 
   const handleOptimisticRemove = (id) => {
     setWishlist((prev) => prev.filter((item) => item.id !== id));
@@ -129,16 +140,29 @@ export default function WishlistPage() {
         ) : wishlist.length === 0 ? (
           <EmptyWishlist />
         ) : (
-          <div className="wishlist-grid">
+          <div className="wishlist-grid relative">
             {wishlist.map((item) => (
-              <WishlistCard
-                key={item.id}
-                item={item}
-                onRemove={handleRemove}
-                onMoveToCart={() => handleMoveToCart(item)}
-                isMoving={Boolean(pendingMoves[item.id])}
-              />
+              restoringItems[item.id] ? (
+                <div key={`skeleton-${item.id}`} className="transition-all duration-500 ease-in-out opacity-100 scale-100">
+                  <WishlistSkeleton />
+                </div>
+              ) : (
+                <WishlistCard
+                  key={item.id}
+                  item={item}
+                  onRemove={handleRemove}
+                  onMoveToCart={() => handleMoveToCart(item)}
+                  isMoving={Boolean(pendingMoves[item.id])}
+                />
+              )
             ))}
+            
+            {/* Polling Skeleton Indicator */}
+            {isPolling && (
+              <div className="opacity-50 scale-95 transition-all duration-500 pointer-events-none mt-2">
+                <WishlistSkeleton />
+              </div>
+            )}
           </div>
         )}
       </main>
