@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import CartItemSkeleton from "@/components/skeletons/CartItemSkeleton";
 
 export default function CartCard({ item, onQuantityChange, onRemove, updatingItemId }) {
   const { id, quantity, product } = item;
@@ -17,6 +18,10 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
       onQuantityChange(id, quantity + 1);
     }
   };
+
+  if (isUpdating) {
+    return <CartItemSkeleton />;
+  }
 
   return (
     <div className={`cart-card ${isUpdating ? "updating" : ""}`}>

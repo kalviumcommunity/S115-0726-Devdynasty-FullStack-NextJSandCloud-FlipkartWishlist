@@ -7,6 +7,7 @@ import CartCard from "@/components/ui/CartCard";
 import OrderSummary from "@/components/ui/OrderSummary";
 import CheckoutButton from "@/components/cart/CheckoutButton";
 import EmptyCart from "@/components/ui/EmptyCart";
+import CartSkeleton from "@/components/skeletons/CartSkeleton";
 import { get, del, patch } from "@/services/api";
 
 export default function CartPage() {
@@ -79,11 +80,7 @@ export default function CartPage() {
       <Navbar />
       <main className="cart-page-container">
         {loading ? (
-          <div className="cart-loading-state">
-            <div className="shimmer-circle"></div>
-            <div className="shimmer-line header-shimmer"></div>
-            <div className="shimmer-line desc-shimmer"></div>
-          </div>
+          <CartSkeleton />
         ) : error ? (
           <div className="cart-error-state">
             <p className="error-msg">{error}</p>
@@ -145,35 +142,6 @@ export default function CartPage() {
           display: flex;
           flex-direction: column;
           gap: 20px;
-        }
-        .cart-loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 0;
-        }
-        .shimmer-circle {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          background: #e2e8f0;
-          animation: pulse 1.5s infinite ease-in-out;
-          margin-bottom: 24px;
-        }
-        .shimmer-line {
-          height: 16px;
-          background: #e2e8f0;
-          border-radius: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-          margin-bottom: 12px;
-        }
-        .header-shimmer {
-          width: 200px;
-          height: 24px;
-        }
-        .desc-shimmer {
-          width: 320px;
         }
         .cart-error-state {
           text-align: center;

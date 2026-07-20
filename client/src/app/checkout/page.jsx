@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import CheckoutForm from "@/components/ui/CheckoutForm";
 import OrderSummary from "@/components/ui/OrderSummary";
+import CheckoutSkeleton from "@/components/skeletons/CheckoutSkeleton";
 import { get, del } from "@/services/api";
 
 export default function CheckoutPage() {
@@ -172,11 +173,7 @@ export default function CheckoutPage() {
       <Navbar />
       <main className="checkout-container">
         {loading ? (
-          <div className="checkout-loading-state">
-            <div className="shimmer-circle"></div>
-            <div className="shimmer-line header-shimmer"></div>
-            <div className="shimmer-line desc-shimmer"></div>
-          </div>
+          <CheckoutSkeleton />
         ) : error ? (
           <div className="checkout-error-state">
             <p className="error-msg">{error}</p>
@@ -350,35 +347,7 @@ export default function CheckoutPage() {
           background: var(--primary-hover);
           transform: translateY(-1px);
         }
-        .checkout-loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 0;
-        }
-        .shimmer-circle {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          background: #e2e8f0;
-          animation: pulse 1.5s infinite ease-in-out;
-          margin-bottom: 24px;
-        }
-        .shimmer-line {
-          height: 16px;
-          background: #e2e8f0;
-          border-radius: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-          margin-bottom: 12px;
-        }
-        .header-shimmer {
-          width: 200px;
-          height: 24px;
-        }
-        .desc-shimmer {
-          width: 320px;
-        }
+
         .checkout-error-state {
           text-align: center;
           padding: 60px 24px;
