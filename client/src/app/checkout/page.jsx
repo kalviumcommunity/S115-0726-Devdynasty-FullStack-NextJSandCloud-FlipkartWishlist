@@ -7,6 +7,7 @@ import CheckoutForm from "@/components/ui/CheckoutForm";
 import OrderSummary from "@/components/ui/OrderSummary";
 import CheckoutSkeleton from "@/components/skeletons/CheckoutSkeleton";
 import { get, del } from "@/services/api";
+import { showToast } from "@/utils/toast";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -162,7 +163,7 @@ export default function CheckoutPage() {
       router.push("/order-success");
     } catch (err) {
       console.error("Order placement failed:", err);
-      alert(err.message || "Something went wrong while processing your order. Please try again.");
+      showToast.error(err.message || "Something went wrong while processing your order. Please try again.");
     } finally {
       setIsPlacingOrder(false);
     }

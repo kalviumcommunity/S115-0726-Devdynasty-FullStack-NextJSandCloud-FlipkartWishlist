@@ -9,6 +9,7 @@ import CheckoutButton from "@/components/cart/CheckoutButton";
 import EmptyCart from "@/components/ui/EmptyCart";
 import CartSkeleton from "@/components/skeletons/CartSkeleton";
 import { get, del, patch } from "@/services/api";
+import { showToast } from "@/utils/toast";
 
 export default function CartPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function CartPage() {
         )
       );
     } catch (err) {
-      alert(err.message || "Failed to update quantity. Please check product stock.");
+      showToast.error(err.message || "Failed to update quantity. Please check product stock.");
     } finally {
       setUpdatingItemId(null);
     }
@@ -66,7 +67,7 @@ export default function CartPage() {
       await del(`/api/cart/${itemId}`);
       setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
     } catch (err) {
-      alert(err.message || "Failed to remove item.");
+      showToast.error(err.message || "Failed to remove item.");
     }
   };
 
