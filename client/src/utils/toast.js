@@ -16,6 +16,7 @@ export const showToast = {
       pauseOnHover: true,
       draggable: true,
       theme: "light",
+      toastId: message,
       ...options
     });
   },
@@ -28,6 +29,7 @@ export const showToast = {
       pauseOnHover: true,
       draggable: true,
       theme: "light",
+      toastId: message,
       ...options
     });
   },
@@ -40,6 +42,7 @@ export const showToast = {
       pauseOnHover: true,
       draggable: true,
       theme: "light",
+      toastId: message,
       ...options
     });
   },
@@ -52,6 +55,7 @@ export const showToast = {
       pauseOnHover: true,
       draggable: true,
       theme: "light",
+      toastId: message,
       ...options
     });
   }

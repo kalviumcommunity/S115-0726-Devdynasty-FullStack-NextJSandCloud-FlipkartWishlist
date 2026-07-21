@@ -30,8 +30,10 @@ export default function CartPage() {
       // Custom friendly error if unauthorized
       if (err.message.includes("401") || err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("token")) {
         setError("Please login to access and manage your cart.");
+        showToast.error("Session expired. Please login again.");
       } else {
         setError("Unable to load cart. Please try again later.");
+        showToast.error("Network error. Please try again later.");
       }
     } finally {
       setLoading(false);
@@ -55,6 +57,7 @@ export default function CartPage() {
           item.id === itemId ? { ...item, quantity: updatedItem.quantity } : item
         )
       );
+      showToast.success("Quantity updated successfully");
     } catch (err) {
       showToast.error(err.message || "Failed to update quantity. Please check product stock.");
     } finally {
@@ -66,6 +69,7 @@ export default function CartPage() {
     try {
       await del(`/api/cart/${itemId}`);
       setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+      showToast.success("Item removed from cart");
     } catch (err) {
       showToast.error(err.message || "Failed to remove item.");
     }
