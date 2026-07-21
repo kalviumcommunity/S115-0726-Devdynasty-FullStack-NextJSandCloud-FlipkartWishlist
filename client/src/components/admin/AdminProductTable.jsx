@@ -13,7 +13,7 @@ function getProductTitle(product) {
   return product.title || product.name || "Untitled product";
 }
 
-export default function AdminProductTable({ products }) {
+export default function AdminProductTable({ products, onEdit }) {
   return (
     <div className="admin-table-container">
       <div className="table-scroll">
@@ -25,6 +25,7 @@ export default function AdminProductTable({ products }) {
               <th>Price</th>
               <th>Current Stock</th>
               <th>Stock Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -50,6 +51,11 @@ export default function AdminProductTable({ products }) {
                   <div className="stock-status">
                     <StockBadge stock={product.stock ?? 0} />
                   </div>
+                </td>
+                <td>
+                  <button className="edit-button" onClick={() => onEdit(product)}>
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
@@ -126,6 +132,17 @@ export default function AdminProductTable({ products }) {
         .stock-status {
           display: flex;
           align-items: center;
+        }
+
+        .edit-button {
+          border: none;
+          background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+          color: white;
+          padding: 8px 12px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
         }
 
         @media (max-width: 768px) {

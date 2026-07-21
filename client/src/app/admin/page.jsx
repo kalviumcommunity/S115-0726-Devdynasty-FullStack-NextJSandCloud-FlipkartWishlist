@@ -6,31 +6,89 @@ import AdminProductTable from "@/components/admin/AdminProductTable";
 import AdminLoadingState from "@/components/admin/AdminLoadingState";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminErrorState from "@/components/admin/AdminErrorState";
-import { get } from "@/services/api";
+import AdminEditModal from "@/components/admin/AdminEditModal";
+import { get, patch } from "@/services/api";
 
 export default function AdminDashboardPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [formValues, setFormValues] = useState({ price: "", stock: "" });
+  const [formError, setFormError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function loadProducts() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const data = await get("/api/products");
+      const normalizedProducts = Array.isArray(data) ? data : [];
+      setProducts(normalizedProducts);
+    } catch (err) {
+      setError(err.message || "Unable to load products.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadProducts() {
-      setLoading(true);
-      setError("");
-
-      try {
-        const data = await get("/api/products");
-        const normalizedProducts = Array.isArray(data) ? data : [];
-        setProducts(normalizedProducts);
-      } catch (err) {
-        setError(err.message || "Unable to load products.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadProducts();
   }, []);
+
+  function openEditModal(product) {
+    setSelectedProduct(product);
+    setFormValues({ price: product.price ?? "", stock: product.stock ?? "" });
+    setFormError("");
+    setIsModalOpen(true);
+  }
+
+  function closeEditModal() {
+    if (isSaving) return;
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+    setFormValues({ price: "", stock: "" });
+    setFormError("");
+  }
+
+  async function handleSaveProduct(event) {
+    event.preventDefault();
+
+    if (isSaving || !selectedProduct) return;
+
+    const price = Number(formValues.price);
+    const stock = Number(formValues.stock);
+
+    if (Number.isNaN(price) || Number.isNaN(stock)) {
+      setFormError("Price and stock must be valid numbers.");
+      return;
+    }
+
+    if (price < 0) {
+      setFormError("Price cannot be negative.");
+      return;
+    }
+
+    if (stock < 0) {
+      setFormError("Stock cannot be negative.");
+      return;
+    }
+
+    setIsSaving(true);
+    setFormError("");
+
+    try {
+      await patch(`/api/products/${selectedProduct.id}`, { price, stock });
+      await loadProducts();
+      closeEditModal();
+    } catch (err) {
+      setFormError(err.message || "Unable to update product.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   const stockCounts = useMemo(() => {
     const inStock = products.filter((product) => Number(product.stock) > 3).length;
@@ -88,10 +146,47 @@ export default function AdminDashboardPage() {
           ) : products.length === 0 ? (
             <AdminEmptyState />
           ) : (
-            <AdminProductTable products={products} />
+            <AdminProductTable products={products} onEdit={openEditModal} />
           )}
         </section>
       </main>
+
+      <AdminEditModal
+        isOpen={isModalOpen}
+        onClose={closeEditModal}
+        title={selectedProduct ? `Edit ${selectedProduct.title || "product"}` : "Edit product"}
+        description="Adjust the stock and pricing for this product. Changes are saved directly to the database."
+        onSubmit={handleSaveProduct}
+        isSubmitting={isSaving}
+        submitLabel="Save changes"
+        error={formError}
+      >
+        <div className="field-group">
+          <label htmlFor="price">Price</label>
+          <input
+            id="price"
+            name="price"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formValues.price}
+            onChange={(event) => setFormValues((current) => ({ ...current, price: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="field-group">
+          <label htmlFor="stock">Stock</label>
+          <input
+            id="stock"
+            name="stock"
+            type="number"
+            min="0"
+            value={formValues.stock}
+            onChange={(event) => setFormValues((current) => ({ ...current, stock: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+      </AdminEditModal>
 
       <style jsx>{`
         .admin-page {
