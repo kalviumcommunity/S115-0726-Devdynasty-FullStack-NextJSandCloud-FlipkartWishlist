@@ -6,7 +6,7 @@ import WishlistCard from "@/components/ui/WishlistCard";
 import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
 import EmptyWishlist from "@/components/ui/EmptyWishlist";
-import { toast } from "react-toastify";
+import { showToast } from "@/utils/toast";
 import { useWishlistPolling } from "@/hooks/useWishlistPolling";
 
 export default function WishlistPage() {
@@ -65,16 +65,16 @@ export default function WishlistPage() {
 
       // Step 4: Remove from backend wishlist
       await del(`/api/wishlist/${itemId}`);
-      toast.success("Item moved successfully");
+      showToast.success("Item moved successfully");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
       if (!cartAdded) {
         // Failed at cart stage (e.g. out of stock). Item was never removed, so no restore needed.
-        toast.error("Failed to move to cart: " + err.message);
+        showToast.error("Failed to move to cart: " + err.message);
       } else {
         // Failed at wishlist delete stage. Item was optimistically removed, so restore it.
         restoreWishlistItem(item, removedIndex);
-        toast.warn("Item was added to cart, but wishlist update failed. Refresh to sync.");
+        showToast.warn("Item was added to cart, but wishlist update failed. Refresh to sync.");
       }
     } finally {
       delete pendingMovesRef.current[itemId];
@@ -117,9 +117,10 @@ export default function WishlistPage() {
     try {
       await del(`/api/wishlist/${id}`);
       setWishlist(prev => prev.filter(item => item.id !== id));
+      showToast.success("Item removed from wishlist");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
-      toast.error("Failed to remove item: " + err.message);
+      showToast.error("Failed to remove item: " + err.message);
     }
   };
 

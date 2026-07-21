@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
+import { showToast } from "@/utils/toast";
 
 function ProductCard({ product, priority = false }) {
   const title = product.title || product.name || "Untitled product";
@@ -16,12 +17,12 @@ function ProductCard({ product, priority = false }) {
     }
     try {
       await post("/api/cart", { productId: product.id, quantity: 1 });
-      alert("🛒 Product added to cart successfully!");
+      showToast.success("🛒 Product added to cart successfully!");
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
         window.location.href = "/login";
       } else {
-        alert(err.message || "Failed to add product to cart. Please log in.");
+        showToast.error(err.message || "Failed to add product to cart. Please log in.");
       }
     }
   };
@@ -34,13 +35,13 @@ function ProductCard({ product, priority = false }) {
     }
     try {
       await post("/api/wishlist", { productId: product.id });
-      alert("❤️ Product added to wishlist successfully!");
+      showToast.success("❤️ Product added to wishlist successfully!");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
         window.location.href = "/login";
       } else {
-        alert(err.message || "Failed to add product to wishlist. Please log in.");
+        showToast.error(err.message || "Failed to add product to wishlist. Please log in.");
       }
     }
   };

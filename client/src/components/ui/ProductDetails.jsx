@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import StockBadge from "./StockBadge";
 import ProductGallery from "./ProductGallery";
 import { post } from "@/services/api";
+import { showToast } from "@/utils/toast";
 
 function ProductDetails({ product }) {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -39,12 +40,12 @@ function ProductDetails({ product }) {
     setActionLoading(true);
     try {
       await post("/api/cart", { productId: product.id, quantity: 1 });
-      alert("🛒 Product added to cart successfully!");
+      showToast.success("🛒 Product added to cart successfully!");
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
         window.location.href = "/login";
       } else {
-        alert(err.message || "Failed to add product to cart. Please log in.");
+        showToast.error(err.message || "Failed to add product to cart. Please log in.");
       }
     } finally {
       setActionLoading(false);
@@ -59,13 +60,13 @@ function ProductDetails({ product }) {
     setActionLoading(true);
     try {
       await post("/api/wishlist", { productId: product.id });
-      alert("❤️ Product added to wishlist successfully!");
+      showToast.success("❤️ Product added to wishlist successfully!");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
         window.location.href = "/login";
       } else {
-        alert(err.message || "Failed to add product to wishlist. Please log in.");
+        showToast.error(err.message || "Failed to add product to wishlist. Please log in.");
       }
     } finally {
       setActionLoading(false);
