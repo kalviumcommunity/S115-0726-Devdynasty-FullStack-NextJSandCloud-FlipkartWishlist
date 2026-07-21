@@ -20,6 +20,7 @@ function ProductCard({ product, priority = false }) {
       showToast.success("🛒 Product added to cart successfully!");
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
+        showToast.error("Session expired. Please login again.");
         window.location.href = "/login";
       } else {
         showToast.error(err.message || "Failed to add product to cart. Please log in.");
@@ -39,6 +40,7 @@ function ProductCard({ product, priority = false }) {
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
       if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
+        showToast.error("Session expired. Please login again.");
         window.location.href = "/login";
       } else {
         showToast.error(err.message || "Failed to add product to wishlist. Please log in.");

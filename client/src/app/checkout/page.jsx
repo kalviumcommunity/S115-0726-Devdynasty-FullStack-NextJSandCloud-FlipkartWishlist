@@ -44,8 +44,10 @@ export default function CheckoutPage() {
         err.message.toLowerCase().includes("token")
       ) {
         setError("Please login to access and manage your cart.");
+        showToast.error("Session expired. Please login again.");
       } else {
         setError("Unable to load checkout page. Please try again later.");
+        showToast.error("Network error. Please try again later.");
       }
     } finally {
       setLoading(false);
@@ -160,6 +162,7 @@ export default function CheckoutPage() {
       );
 
       // Redirect to success page
+      showToast.success("Order placed successfully!");
       router.push("/order-success");
     } catch (err) {
       console.error("Order placement failed:", err);

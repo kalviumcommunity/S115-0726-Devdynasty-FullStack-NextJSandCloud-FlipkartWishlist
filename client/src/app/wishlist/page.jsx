@@ -91,8 +91,10 @@ export default function WishlistPage() {
       } catch (err) {
         if (err.message?.includes("Unauthorized") || err.message?.includes("Authorization")) {
           setError("Please login to view your wishlist.");
+          showToast.error("Session expired. Please login again.");
         } else {
           setError(err.message || "Failed to load wishlist");
+          showToast.error("Network error. Please try again later.");
         }
       } finally {
         setLoading(false);
