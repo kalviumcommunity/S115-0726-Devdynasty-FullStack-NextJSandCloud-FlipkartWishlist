@@ -6,6 +6,7 @@ import WishlistCard from "@/components/ui/WishlistCard";
 import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
 import EmptyWishlist from "@/components/ui/EmptyWishlist";
+import ErrorState from "@/components/ui/ErrorState";
 import { showToast } from "@/utils/toast";
 import { useWishlistPolling } from "@/hooks/useWishlistPolling";
 
@@ -139,7 +140,7 @@ export default function WishlistPage() {
             <WishlistSkeleton />
           </div>
         ) : error ? (
-          <p className="error">{error}</p>
+          <ErrorState message={error} onRetry={() => window.location.reload()} />
         ) : wishlist.length === 0 ? (
           <EmptyWishlist />
         ) : (
@@ -159,13 +160,6 @@ export default function WishlistPage() {
                 />
               )
             ))}
-            
-            {/* Polling Skeleton Indicator */}
-            {isPolling && (
-              <div className="opacity-50 scale-95 transition-all duration-500 pointer-events-none mt-2">
-                <WishlistSkeleton />
-              </div>
-            )}
           </div>
         )}
       </main>
@@ -177,12 +171,10 @@ export default function WishlistPage() {
           padding: 32px 16px;
         }
         h1 {
-          font-size: 24px;
+          font-size: 28px;
           margin-bottom: 24px;
-          color: #333;
-        }
-        .error {
-          color: red;
+          color: #1e293b;
+          font-weight: 800;
         }
         .wishlist-grid {
           display: flex;

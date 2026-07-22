@@ -15,8 +15,8 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
         <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} style={{ width: "auto", height: "auto" }} />
       </div>
       <div className="details">
-        <h3>
-          <Link href={`/product/${product.id}`}>
+        <h3 className="line-clamp-2">
+          <Link href={`/product/${product.id}`} aria-label={`View details for ${product.title || product.name}`}>
             {product.title || product.name}
           </Link>
         </h3>
@@ -31,10 +31,16 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
           disabled={moveDisabled}
           className={`btn-move-cart ${moveDisabled ? "btn-disabled" : ""}`}
           aria-busy={isMoving}
+          aria-label={moveDisabled ? "Cannot move to cart" : "Move item to cart"}
         >
           {moveLabel}
         </button>
-        <button onClick={() => onRemove(item.id)} disabled={isMoving} className="btn-remove">
+        <button 
+          onClick={() => onRemove(item.id)} 
+          disabled={isMoving} 
+          className="btn-remove"
+          aria-label="Remove item from wishlist"
+        >
           Remove
         </button>
       </div>
@@ -42,13 +48,13 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
       <style jsx>{`
         .wishlist-card {
           display: flex;
-          border: 1px solid #eaeaea;
-          border-radius: 12px;
+          border: 1px solid var(--border, #eaeaea);
+          border-radius: 16px;
           padding: 20px;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
           align-items: center;
-          background: white;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+          background: var(--card-bg, white);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.03);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           animation: slideIn 0.4s ease-out forwards;
         }
@@ -63,39 +69,51 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
           }
         }
         .wishlist-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 10px 15px rgba(0,0,0,0.08);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .image-container {
+          flex-shrink: 0;
         }
         .image-container img {
-          width: 120px;
-          height: 120px;
+          width: 100px;
+          height: 100px;
           object-fit: contain;
-          border-radius: 8px;
-          background: #f8f9fa;
+          border-radius: 12px;
+          background: #f8fafc;
           padding: 8px;
         }
         .details {
           flex: 1;
           margin-left: 24px;
+          min-width: 0;
         }
         .details h3 {
-          margin: 0 0 12px 0;
-          font-size: 20px;
+          margin: 0 0 8px 0;
+          font-size: 18px;
           font-weight: 600;
         }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .details h3 a {
-          color: #2c3e50;
+          color: #1e293b;
           text-decoration: none;
           transition: color 0.2s ease;
         }
-        .details h3 a:hover {
-          color: #2874f0;
+        .details h3 a:hover, .details h3 a:focus {
+          color: var(--primary, #2874f0);
+          outline: none;
         }
         .price {
           font-weight: 700;
           font-size: 18px;
-          margin-bottom: 12px;
-          color: #2874f0;
+          margin-bottom: 8px;
+          color: var(--primary, #2874f0);
         }
         .actions {
           margin-left: 24px;
@@ -105,59 +123,90 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
           min-width: 140px;
         }
         .btn-move-cart {
-          background-color: #2874f0;
+          background-color: var(--primary, #2874f0);
           color: white;
           border: none;
           padding: 10px 20px;
-          border-radius: 6px;
+          border-radius: 8px;
           font-weight: 600;
           cursor: pointer;
-          transition: background-color 0.2s, transform 0.1s;
+          transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
         }
-        .btn-move-cart:hover {
-          background-color: #1e5bb8;
-          transform: scale(1.02);
+        .btn-move-cart:hover:not(:disabled) {
+          background-color: var(--primary-hover, #1e5bb8);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.25);
+        }
+        .btn-move-cart:focus-visible, .btn-remove:focus-visible {
+          outline: 2px solid var(--primary, #2874f0);
+          outline-offset: 2px;
         }
         .btn-remove {
           background-color: white;
-          border: 1px solid #e0e0e0;
-          color: #757575;
+          border: 1px solid #e2e8f0;
+          color: #64748b;
           padding: 10px 20px;
-          border-radius: 6px;
+          border-radius: 8px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
         }
         .btn-disabled {
-          opacity: 0.65;
+          opacity: 0.6;
           cursor: not-allowed;
-          pointer-events: none;
+          background-color: #94a3b8 !important;
+          box-shadow: none !important;
+          transform: none !important;
         }
-        .btn-remove:hover {
-          background-color: #fff3f3;
-          color: #d32f2f;
-          border-color: #d32f2f;
+        .btn-remove:hover:not(:disabled) {
+          background-color: #fef2f2;
+          color: #ef4444;
+          border-color: #ef4444;
         }
+        
+        /* Tablet */
+        @media (max-width: 768px) {
+          .wishlist-card {
+            padding: 16px;
+          }
+          .details {
+            margin-left: 16px;
+          }
+          .actions {
+            margin-left: 16px;
+            min-width: 120px;
+          }
+        }
+        
+        /* Mobile */
         @media (max-width: 600px) {
           .wishlist-card {
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
+            padding: 16px;
+          }
+          .image-container {
+            align-self: center;
+          }
+          .image-container img {
+            width: 140px;
+            height: 140px;
           }
           .details {
             margin-left: 0;
             margin-top: 16px;
-            width: 100%;
+            text-align: center;
           }
           .actions {
             margin-left: 0;
-            margin-top: 16px;
-            width: 100%;
+            margin-top: 20px;
             flex-direction: row;
             flex-wrap: wrap;
           }
           .btn-move-cart, .btn-remove {
             flex: 1;
             text-align: center;
+            min-width: 120px;
           }
         }
       `}</style>

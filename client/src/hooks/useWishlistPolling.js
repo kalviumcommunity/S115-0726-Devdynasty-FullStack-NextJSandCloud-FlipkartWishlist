@@ -1,21 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { get } from "@/services/api";
 import { showToast } from "@/utils/toast";
+
 export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
   const [isPolling, setIsPolling] = useState(false);
+  const isPollingRef = useRef(false);
 
   useEffect(() => {
     if (wishlist.length === 0) return;
 
+    let timeoutId;
+    let isMounted = true;
+
     const poll = async () => {
+      if (!isMounted) return;
+
       // Only poll when the page is active/visible
       if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        timeoutId = setTimeout(poll, intervalMs);
+        return;
+      }
+
+      if (isPollingRef.current) {
+        timeoutId = setTimeout(poll, intervalMs);
         return;
       }
 
       try {
+        isPollingRef.current = true;
         setIsPolling(true);
         const stockData = await get("/api/wishlist/check-stock");
+
+        if (!isMounted) return;
 
         setWishlist((prevWishlist) =>
           prevWishlist.map((item) => {
@@ -45,14 +61,20 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
       } catch (err) {
         console.error("Failed to check stock updates", err);
       } finally {
-        setIsPolling(false);
+        if (isMounted) {
+          isPollingRef.current = false;
+          setIsPolling(false);
+          timeoutId = setTimeout(poll, intervalMs);
+        }
       }
     };
 
-    const interval = setInterval(poll, intervalMs);
+    timeoutId = setTimeout(poll, intervalMs);
 
-    // Clear interval on unmount
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [wishlist.length, setWishlist, intervalMs]);
 
   return isPolling;
