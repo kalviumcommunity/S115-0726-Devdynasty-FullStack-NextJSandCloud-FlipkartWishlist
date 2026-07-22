@@ -7,7 +7,8 @@ import AdminLoadingState from "@/components/admin/AdminLoadingState";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminErrorState from "@/components/admin/AdminErrorState";
 import AdminEditModal from "@/components/admin/AdminEditModal";
-import { get, patch } from "@/services/api";
+import { get, put } from "@/services/api";
+import { toast } from "react-toastify";
 
 export default function AdminDashboardPage() {
   const [products, setProducts] = useState([]);
@@ -35,12 +36,20 @@ export default function AdminDashboardPage() {
   }
 
   useEffect(() => {
-    loadProducts();
+    const loadTimer = setTimeout(loadProducts, 0);
+    return () => clearTimeout(loadTimer);
   }, []);
 
   function openEditModal(product) {
     setSelectedProduct(product);
-    setFormValues({ price: product.price ?? "", stock: product.stock ?? "" });
+    setFormValues({
+      title: product.title ?? "",
+      price: product.price ?? "",
+      stock: product.stock ?? "",
+      category: product.category ?? "",
+      image: product.image ?? "",
+      description: product.description ?? "",
+    });
     setFormError("");
     setIsModalOpen(true);
   }
@@ -66,8 +75,8 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    if (price < 0) {
-      setFormError("Price cannot be negative.");
+    if (price <= 0) {
+      setFormError("Price must be greater than 0.");
       return;
     }
 
@@ -80,10 +89,21 @@ export default function AdminDashboardPage() {
     setFormError("");
 
     try {
-      await patch(`/api/products/${selectedProduct.id}`, { price, stock });
+      await put(`/api/admin/products/${selectedProduct.id}`, {
+        title: formValues.title,
+        price,
+        stock,
+        category: formValues.category,
+        image: formValues.image,
+        description: formValues.description,
+      });
+      toast.success("Product Updated Successfully");
       await loadProducts();
       closeEditModal();
     } catch (err) {
+      if (err.status === 401) toast.error("Session expired");
+      else if (err.status === 400) toast.error(err.message || "Invalid product data");
+      else toast.error("Failed to Update Product");
       setFormError(err.message || "Unable to update product.");
     } finally {
       setIsSaving(false);
@@ -162,6 +182,16 @@ export default function AdminDashboardPage() {
         error={formError}
       >
         <div className="field-group">
+          <label htmlFor="title">Title</label>
+          <input
+            id="title"
+            name="title"
+            value={formValues.title ?? selectedProduct?.title ?? ""}
+            onChange={(event) => setFormValues((current) => ({ ...current, title: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="field-group">
           <label htmlFor="price">Price</label>
           <input
             id="price"
@@ -183,6 +213,36 @@ export default function AdminDashboardPage() {
             min="0"
             value={formValues.stock}
             onChange={(event) => setFormValues((current) => ({ ...current, stock: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="field-group">
+          <label htmlFor="category">Category</label>
+          <input
+            id="category"
+            name="category"
+            value={formValues.category ?? selectedProduct?.category ?? ""}
+            onChange={(event) => setFormValues((current) => ({ ...current, category: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="field-group">
+          <label htmlFor="image">Image</label>
+          <input
+            id="image"
+            name="image"
+            value={formValues.image ?? selectedProduct?.image ?? ""}
+            onChange={(event) => setFormValues((current) => ({ ...current, image: event.target.value }))}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="field-group">
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formValues.description ?? selectedProduct?.description ?? ""}
+            onChange={(event) => setFormValues((current) => ({ ...current, description: event.target.value }))}
             disabled={isSaving}
           />
         </div>
