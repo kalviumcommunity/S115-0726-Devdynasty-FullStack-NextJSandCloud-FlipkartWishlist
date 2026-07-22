@@ -1,19 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
-
-function createToken(user) {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("JWT_SECRET is not defined in environment variables.");
-  }
-  return jwt.sign(
-    { userId: user.id, email: user.email }, 
-    secret,
-    { expiresIn: "1d" }
-  );
-}
+import { generateToken } from "@/lib/auth";
 
 export async function POST(request) {
   try {
@@ -32,12 +20,19 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
     }
 
-    const token = createToken(user);
-
-    return NextResponse.json({
+    const token = generateToken(user);
+    const response = NextResponse.json({
       user: { id: user.id, name: user.name, email: user.email },
       token,
     });
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Unable to login." }, { status: 500 });

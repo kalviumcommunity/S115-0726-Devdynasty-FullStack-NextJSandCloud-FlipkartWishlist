@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { verifyAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateProductUpdate } from "@/lib/productValidation.mjs";
 
@@ -24,6 +25,14 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
+    const { user, reason } = await verifyAdmin(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: reason === "forbidden" ? "Admin access required." : "Authentication required." },
+        { status: reason === "forbidden" ? 403 : 401 },
+      );
+    }
+
     const { id: paramId } = await params;
     const id = Number(paramId);
 

@@ -44,7 +44,9 @@ async function request(endpoint, options = {}) {
 
   if (!response.ok) {
     const errorMessage = parsed?.error || parsed?.message || text || response.statusText;
-    throw new Error(errorMessage || "API request failed");
+    const requestError = new Error(errorMessage || "API request failed");
+    requestError.status = response.status;
+    throw requestError;
   }
 
   return parsed || {};
@@ -64,4 +66,8 @@ export function del(endpoint) {
 
 export function patch(endpoint, data) {
   return request(endpoint, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export function put(endpoint, data) {
+  return request(endpoint, { method: "PUT", body: JSON.stringify(data) });
 }
