@@ -75,8 +75,11 @@ export default function CartPage() {
     }
   };
 
+  const hasInvalidItems = items.some(item => item.quantity > item.product.stock);
+  const isCheckoutDisabled = items.length === 0 || hasInvalidItems;
+
   const handleCheckout = () => {
-    if (items.length === 0) return;
+    if (isCheckoutDisabled) return;
     router.push("/checkout");
   };
 
@@ -118,7 +121,7 @@ export default function CartPage() {
               <CheckoutButton
                 onClick={handleCheckout}
                 loading={checkoutLoading}
-                disabled={items.length === 0}
+                disabled={isCheckoutDisabled}
               />
             </div>
           </div>
@@ -188,6 +191,12 @@ export default function CartPage() {
           .cart-grid {
             grid-template-columns: 1fr;
             gap: 40px;
+          }
+          .cart-title {
+            font-size: 24px;
+          }
+          .cart-page-container {
+            padding: 24px 16px;
           }
         }
       `}</style>

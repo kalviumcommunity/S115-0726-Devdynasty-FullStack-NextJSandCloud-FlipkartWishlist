@@ -48,6 +48,12 @@ export async function POST(request) {
       return NextResponse.json({ error: "Out of Stock." }, { status: 400 });
     }
 
+    const requestedQuantity = quantity || 1;
+
+    if (requestedQuantity < 1) {
+      return NextResponse.json({ error: "Quantity must be at least 1." }, { status: 400 });
+    }
+
     const existingItem = await prisma.cart.findUnique({
       where: {
         userId_productId: {
@@ -58,21 +64,30 @@ export async function POST(request) {
     });
 
     if (existingItem) {
+      const newQuantity = existingItem.quantity + requestedQuantity;
+      if (newQuantity > product.stock) {
+        return NextResponse.json({ error: "Cannot add more. Quantity exceeds available stock." }, { status: 400 });
+      }
+
       const updated = await prisma.cart.update({
         where: { id: existingItem.id },
         data: {
-          quantity: existingItem.quantity + (quantity || 1),
+          quantity: newQuantity,
         },
       });
 
       return NextResponse.json(updated);
     }
 
+    if (requestedQuantity > product.stock) {
+      return NextResponse.json({ error: "Quantity exceeds available stock." }, { status: 400 });
+    }
+
     const cart = await prisma.cart.create({
       data: {
         userId: Number(userId),
         productId: Number(productId),
-        quantity: quantity || 1,
+        quantity: requestedQuantity,
       },
     });
 

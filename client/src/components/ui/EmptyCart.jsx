@@ -13,19 +13,21 @@ export default function EmptyCart() {
           fill="none"
           stroke="currentColor"
           strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           className="empty-cart-svg"
         >
-          <circle cx="9" cy="21" r="1" />
-          <circle cx="20" cy="21" r="1" />
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
       </div>
-      <h2 className="empty-cart-title">Your Cart is Empty!</h2>
+      <h2 className="empty-cart-title">Your Bag is Empty!</h2>
       <p className="empty-cart-subtitle">
-        Add items to it now to build a smart e-commerce experience.
+        Looks like you haven't added anything yet. Discover our latest products and find something you love.
       </p>
       <Link href="/" className="continue-btn">
-        Continue Shopping
+        Start Shopping
       </Link>
 
       <style jsx>{`

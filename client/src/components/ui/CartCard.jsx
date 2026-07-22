@@ -24,7 +24,7 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
   }
 
   return (
-    <div className={`cart-card ${isUpdating ? "updating" : ""}`}>
+    <div className={`cart-card ${isUpdating ? "updating" : ""} ${quantity > product.stock ? "error" : ""}`}>
       <div className="cart-card-img-container">
         <img src={product.image} alt={product.title} className="cart-card-img" />
       </div>
@@ -37,6 +37,13 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
             Subtotal: ₹{(product.price * quantity).toLocaleString("en-IN")}
           </span>
         </div>
+        
+        {quantity > product.stock && (
+          <div className="stock-error-msg">
+            Quantity exceeds available stock ({product.stock} available)
+          </div>
+        )}
+
         <div className="cart-card-actions">
           <div className="quantity-selector">
             <button
@@ -87,6 +94,21 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
           transform: translateY(-2px);
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
           border-color: #cbd5e1;
+        }
+        .cart-card.error {
+          border-color: #fecaca;
+          background: #fef2f2;
+        }
+        .stock-error-msg {
+          font-size: 13px;
+          color: #dc2626;
+          background: #fee2e2;
+          padding: 6px 10px;
+          border-radius: 6px;
+          margin-bottom: 16px;
+          font-weight: 500;
+          display: inline-block;
+          width: fit-content;
         }
         .cart-card.updating {
           opacity: 0.7;
@@ -221,13 +243,15 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
           .cart-card {
             flex-direction: column;
             align-items: center;
+            padding: 16px;
           }
           .cart-card-img-container {
             width: 100%;
-            height: 180px;
+            height: 200px;
           }
           .cart-card-actions {
             width: 100%;
+            justify-content: space-between;
           }
         }
       `}</style>
