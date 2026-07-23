@@ -10,13 +10,15 @@ export default function CheckoutButton({ onClick, disabled, loading }) {
         className="checkout-btn"
         onClick={onClick}
         disabled={disabled || loading}
+        aria-disabled={disabled || loading}
+        aria-label="Proceed to checkout"
       >
         {loading ? (
-          <span className="spinner">Processing...</span>
+          <span className="spinner" role="status" aria-label="Processing order">Processing...</span>
         ) : (
           <>
             <span>Place Order</span>
-            <span className="btn-arrow">→</span>
+            <span className="btn-arrow" aria-hidden="true">→</span>
           </>
         )}
       </button>
