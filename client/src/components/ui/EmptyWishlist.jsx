@@ -22,18 +22,18 @@ export default function EmptyWishlist() {
       <h2>Your wishlist is empty!</h2>
       <p>Looks like you haven't added anything to your wishlist yet.</p>
       <Link href="/" className="btn-primary">
-        Start Shopping
+        Browse Products
       </Link>
       <style jsx>{`
         .empty-state {
           text-align: center;
-          padding: 64px 24px;
+          padding: 80px 24px;
           background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+          border-radius: 16px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
           margin: 40px auto;
           max-width: 480px;
-          animation: slideUp 0.5s ease-out;
+          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(20px); }
@@ -45,45 +45,45 @@ export default function EmptyWishlist() {
           align-items: center;
           width: 96px;
           height: 96px;
-          background-color: #fce8e6;
+          background: linear-gradient(135deg, #fce8e6 0%, #fef2f2 100%);
           color: #d32f2f;
           border-radius: 50%;
           margin-bottom: 24px;
           animation: pulseIcon 2s infinite;
         }
         @keyframes pulseIcon {
-          0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.2); }
+          0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.15); }
           70% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
           100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
         .empty-state h2 {
           margin: 0 0 12px 0;
-          color: #333;
+          color: #1e293b;
           font-size: 24px;
           font-weight: 700;
         }
         .empty-state p {
           margin-bottom: 32px;
-          color: #666;
+          color: #64748b;
           font-size: 16px;
           line-height: 1.5;
         }
         .btn-primary {
           display: inline-block;
-          background-color: #2874f0;
+          background-color: var(--primary, #2874f0);
           color: white;
-          padding: 14px 32px;
+          padding: 14px 36px;
           text-decoration: none;
-          border-radius: 8px;
+          border-radius: 999px;
           font-weight: 600;
           font-size: 16px;
           transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.3);
+          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.25);
         }
         .btn-primary:hover {
-          background-color: #1e5bb8;
+          background-color: var(--primary-hover, #1e5bb8);
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(40, 116, 240, 0.4);
+          box-shadow: 0 6px 16px rgba(40, 116, 240, 0.35);
         }
         .btn-primary:active {
           transform: translateY(0);
