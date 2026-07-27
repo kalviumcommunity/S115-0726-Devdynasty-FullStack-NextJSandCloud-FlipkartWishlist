@@ -99,6 +99,7 @@ function Navbar({ searchValue = "", onSearchChange }) {
             {dropdownOpen && (
               <div className="dropdown-menu">
                 {isAdmin && <Link href="/admin">Admin Dashboard</Link>}
+                <Link href="/profile">My Profile</Link>
                 <Link href="/wishlist">My Wishlist</Link>
                 <Link href="/cart">My Cart</Link>
                 <button type="button" onClick={handleLogout} className="logout-button">
