@@ -3,6 +3,7 @@ import { badRequest, forbidden, notFound, serverError, success, unauthorized } f
 import prisma from "@/lib/prisma";
 import { validateProductUpdate } from "@/lib/validators/productValidator";
 
+// Force Next.js Turbopack to recompile this route
 async function requireAdmin(request) {
   const result = await verifyAdmin(request);
   if (!result.user) {

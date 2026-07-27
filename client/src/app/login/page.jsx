@@ -39,7 +39,6 @@ export default function Login() {
 
   return (
     <div>
-      <Navbar />
       <main className="auth-page">
         <h1>Login</h1>
         <form onSubmit={handleSubmit} className="auth-form">

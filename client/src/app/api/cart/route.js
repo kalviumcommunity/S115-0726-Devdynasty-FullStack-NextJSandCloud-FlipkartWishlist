@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(request) {
   try {
-    const payload = verifyAuth(request);
+    const payload = await verifyAuth(request);
     const userId = payload ? payload.userId : Number(request.nextUrl.searchParams.get("userId"));
 
     if (!userId || Number.isNaN(userId)) {
@@ -27,7 +27,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const payload = verifyAuth(request);
+    const payload = await verifyAuth(request);
     const body = await request.json();
     const userId = payload ? payload.userId : Number(body.userId);
     const { productId, quantity } = body;

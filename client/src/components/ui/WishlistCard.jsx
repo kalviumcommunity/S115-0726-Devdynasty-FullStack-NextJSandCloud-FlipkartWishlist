@@ -12,7 +12,7 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
     <div className="wishlist-card">
       <div className="image-container">
         {/* Placeholder image or actual product image */}
-        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} style={{ width: "auto", height: "auto" }} />
+        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} />
       </div>
       <div className="details">
         <h3 className="line-clamp-2">
@@ -123,45 +123,44 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
           min-width: 140px;
         }
         .btn-move-cart {
-          background-color: var(--primary, #2874f0);
+          background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
           color: white;
           border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-weight: 600;
+          padding: 11px 20px;
+          border-radius: 999px;
+          font-weight: 700;
           cursor: pointer;
-          transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+          transition: transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
         .btn-move-cart:hover:not(:disabled) {
-          background-color: var(--primary-hover, #1e5bb8);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.25);
+          box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
         }
         .btn-move-cart:focus-visible, .btn-remove:focus-visible {
-          outline: 2px solid var(--primary, #2874f0);
+          outline: 2px solid var(--primary);
           outline-offset: 2px;
         }
         .btn-remove {
-          background-color: white;
-          border: 1px solid #e2e8f0;
-          color: #64748b;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-weight: 600;
+          background-color: #f1f5f9;
+          border: none;
+          color: #334155;
+          padding: 11px 20px;
+          border-radius: 999px;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
         }
         .btn-disabled {
           opacity: 0.6;
           cursor: not-allowed;
-          background-color: #94a3b8 !important;
+          background: #94a3b8 !important;
           box-shadow: none !important;
           transform: none !important;
         }
         .btn-remove:hover:not(:disabled) {
-          background-color: #fef2f2;
+          background-color: #fee2e2;
           color: #ef4444;
-          border-color: #ef4444;
         }
         
         /* Tablet */
