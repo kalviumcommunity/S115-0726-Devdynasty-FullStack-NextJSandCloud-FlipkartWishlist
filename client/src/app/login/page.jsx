@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { post } from "../../services/api";
 import Navbar from "@/components/layout/Navbar";
+import { validateLogin } from "@/lib/validators/authValidator";
 
 export default function Login() {
   const router = useRouter();
@@ -18,8 +19,14 @@ export default function Login() {
     setError(null);
     setMessage(null);
 
+    const validation = validateLogin({ email, password });
+    if (!validation.isValid) {
+      setError(validation.error);
+      return;
+    }
+
     try {
-      const data = await post("/api/auth/login", { email, password });
+      const data = await post("/api/auth/login", validation.sanitizedData);
       if (data.token) {
          localStorage.setItem("token", data.token); // Store token if the API returns it
       }
