@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { isAdmin, verifyToken } from "@/lib/auth";
 
-export function middleware(request) {
-  const payload = verifyToken(request);
+export async function middleware(request) {
+  const payload = await verifyToken(request);
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
 

@@ -38,13 +38,17 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
             const newStock = stockData[item.productId];
             if (newStock !== undefined && item.product.stock !== newStock) {
               if (newStock === 0 && item.product.stock > 0) {
-                showToast.error(`"${item.product.title || item.product.name}" is now sold out!`, {
-                  toastId: `stock-out-${item.productId}`
-                });
+                setTimeout(() => {
+                  showToast.error(`"${item.product.title || item.product.name}" is now sold out!`, {
+                    toastId: `stock-out-${item.productId}`
+                  });
+                }, 0);
               } else if (newStock <= 3 && item.product.stock > 3) {
-                showToast.warn(`"${item.product.title || item.product.name}" is running out fast!`, {
-                  toastId: `stock-low-${item.productId}`
-                });
+                setTimeout(() => {
+                  showToast.warn(`"${item.product.title || item.product.name}" is running out fast!`, {
+                    toastId: `stock-low-${item.productId}`
+                  });
+                }, 0);
               }
               
               return {

@@ -6,11 +6,34 @@ import WishlistBadge from "../ui/WishlistBadge";
 
 function Navbar({ searchValue = "", onSearchChange }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsAuthenticated(Boolean(localStorage.getItem("token")));
+      const token = localStorage.getItem("token");
+      setIsAuthenticated(Boolean(token));
+      
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          if (base64Url) {
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const padLength = (4 - (base64.length % 4)) % 4;
+            base64 += '='.repeat(padLength);
+            
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const payload = JSON.parse(jsonPayload);
+            if (payload.role === 'ADMIN') {
+              setIsAdmin(true);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to parse token payload", e);
+        }
+      }
     }
   }, []);
 
@@ -35,6 +58,7 @@ function Navbar({ searchValue = "", onSearchChange }) {
     if (typeof window === "undefined") return;
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setIsAdmin(false);
     setDropdownOpen(false);
     window.location.href = "/";
   };
@@ -57,6 +81,7 @@ function Navbar({ searchValue = "", onSearchChange }) {
 
       <nav className="navbar-links">
         <Link href="/">Home</Link>
+        {isAdmin && <Link href="/admin">Admin</Link>}
         <Link href="/wishlist">
           Wishlist <WishlistBadge />
         </Link>
@@ -73,6 +98,7 @@ function Navbar({ searchValue = "", onSearchChange }) {
             </button>
             {dropdownOpen && (
               <div className="dropdown-menu">
+                {isAdmin && <Link href="/admin">Admin Dashboard</Link>}
                 <Link href="/wishlist">My Wishlist</Link>
                 <Link href="/cart">My Cart</Link>
                 <button type="button" onClick={handleLogout} className="logout-button">

@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function DELETE(request, { params }) {
   try {
-    const payload = verifyAuth(request);
+    const payload = await verifyAuth(request);
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
