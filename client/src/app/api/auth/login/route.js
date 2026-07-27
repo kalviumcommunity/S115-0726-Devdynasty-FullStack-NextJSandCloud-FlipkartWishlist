@@ -2,13 +2,17 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/prisma";
 import { generateToken } from "@/lib/auth";
+import { validateLogin } from "@/lib/validators/authValidator";
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+    const body = await request.json();
+    const validation = validateLogin(body);
+    if (!validation.isValid) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
+    const { email, password } = validation.sanitizedData;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -38,3 +42,4 @@ export async function POST(request) {
     return NextResponse.json({ error: "Unable to login." }, { status: 500 });
   }
 }
+

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { post } from "../../services/api";
 import Navbar from "@/components/layout/Navbar";
+import { validateSignup } from "@/lib/validators/authValidator";
 
 export default function Signup() {
   const router = useRouter();
@@ -19,8 +20,14 @@ export default function Signup() {
     setError(null);
     setMessage(null);
 
+    const validation = validateSignup({ name, email, password });
+    if (!validation.isValid) {
+      setError(validation.error);
+      return;
+    }
+
     try {
-      await post("/api/auth/signup", { name, email, password });
+      await post("/api/auth/signup", validation.sanitizedData);
       setMessage("Account created successfully. Redirecting to login...");
       setTimeout(() => router.push("/login"), 600);
     } catch (error) {
