@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import WishlistBadge from "../ui/WishlistBadge";
+import CartBadge from "../ui/CartBadge";
 
 function Navbar({ searchValue = "", onSearchChange }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -85,7 +86,9 @@ function Navbar({ searchValue = "", onSearchChange }) {
         <Link href="/wishlist">
           Wishlist <WishlistBadge />
         </Link>
-        <Link href="/cart">Cart</Link>
+        <Link href="/cart">
+          Cart <CartBadge />
+        </Link>
 
         {isAuthenticated ? (
           <div className="profile-dropdown">

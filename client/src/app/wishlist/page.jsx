@@ -7,7 +7,7 @@ import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
 import EmptyWishlist from "@/components/ui/EmptyWishlist";
 import ErrorState from "@/components/ui/ErrorState";
-import { showToast } from "@/utils/toast";
+import { showToast, handleApiError } from "@/utils/toast";
 import { useWishlistPolling } from "@/hooks/useWishlistPolling";
 
 export default function WishlistPage() {
@@ -68,10 +68,11 @@ export default function WishlistPage() {
       await del(`/api/wishlist/${itemId}`);
       showToast.success("Item moved successfully");
       window.dispatchEvent(new Event("wishlist_updated"));
+      window.dispatchEvent(new Event("cart_updated"));
     } catch (err) {
       if (!cartAdded) {
         // Failed at cart stage (e.g. out of stock). Item was never removed, so no restore needed.
-        showToast.error("Failed to move to cart: " + err.message);
+        handleApiError(err, "Failed to move to cart.");
       } else {
         // Failed at wishlist delete stage. Item was optimistically removed, so restore it.
         restoreWishlistItem(item, removedIndex);
@@ -92,11 +93,10 @@ export default function WishlistPage() {
       } catch (err) {
         if (err.message?.includes("Unauthorized") || err.message?.includes("Authorization")) {
           setError("Please login to view your wishlist.");
-          showToast.error("Session expired. Please login again.");
         } else {
           setError(err.message || "Failed to load wishlist");
-          showToast.error("Network error. Please try again later.");
         }
+        handleApiError(err, "Failed to load wishlist.");
       } finally {
         setLoading(false);
       }
@@ -123,7 +123,7 @@ export default function WishlistPage() {
       showToast.success("Item removed from wishlist");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
-      showToast.error("Failed to remove item: " + err.message);
+      handleApiError(err, "Failed to remove item from wishlist.");
     }
   };
 
