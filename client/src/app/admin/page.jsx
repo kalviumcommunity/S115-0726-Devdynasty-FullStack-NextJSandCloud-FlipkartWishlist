@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { io } from "socket.io-client";
 import Navbar from "@/components/layout/Navbar";
 import AdminProductTable from "@/components/admin/AdminProductTable";
 import AdminLoadingState from "@/components/admin/AdminLoadingState";
@@ -37,7 +38,20 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const loadTimer = setTimeout(loadProducts, 0);
-    return () => clearTimeout(loadTimer);
+    
+    // Initialize WebSocket connection
+    const socket = io();
+
+    socket.on("stock-updated", (updatedProduct) => {
+      setProducts((prevProducts) => 
+        prevProducts.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p)
+      );
+    });
+
+    return () => {
+      clearTimeout(loadTimer);
+      socket.disconnect();
+    };
   }, []);
 
   function openEditModal(product) {

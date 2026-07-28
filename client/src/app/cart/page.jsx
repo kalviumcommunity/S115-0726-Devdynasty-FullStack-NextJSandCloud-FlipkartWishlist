@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { io } from "socket.io-client";
 import Navbar from "@/components/layout/Navbar";
 import CartCard from "@/components/ui/CartCard";
 import OrderSummary from "@/components/ui/OrderSummary";
@@ -46,6 +47,28 @@ export default function CartPage() {
       window.confirm = () => true;
       window.alert = () => {};
     }
+
+    // Initialize WebSocket connection for real-time stock updates in cart
+    const socket = io();
+
+    socket.on("stock-updated", (updatedProduct) => {
+      setItems((prevItems) => {
+        // Only update if the product exists in the cart
+        const exists = prevItems.some(item => item.productId === updatedProduct.id);
+        if (exists) {
+          return prevItems.map(item => 
+            item.productId === updatedProduct.id 
+              ? { ...item, product: { ...item.product, ...updatedProduct } } 
+              : item
+          );
+        }
+        return prevItems;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const handleQuantityChange = async (itemId, newQty) => {

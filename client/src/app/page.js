@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { io } from "socket.io-client";
 import Navbar from "@/components/layout/Navbar";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryFilter from "@/components/ui/CategoryFilter";
@@ -74,6 +75,24 @@ export default function Home() {
     }
 
     fetchProducts();
+
+    // Initialize WebSocket connection for real-time storefront updates
+    const socket = io();
+
+    socket.on("stock-updated", (updatedProduct) => {
+      setProducts((prevProducts) => {
+        // Only update if the product exists in the list to avoid appending nulls
+        const exists = prevProducts.some(p => p.id === updatedProduct.id);
+        if (exists) {
+          return prevProducts.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
+        }
+        return prevProducts;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const categories = useMemo(() => {

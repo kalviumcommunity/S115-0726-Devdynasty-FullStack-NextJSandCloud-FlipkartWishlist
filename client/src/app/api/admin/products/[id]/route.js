@@ -53,6 +53,17 @@ export async function PUT(request, { params }) {
       data: validation.value,
     });
 
+    try {
+      await fetch("http://localhost:3000/_internal/socket-emit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "stock-updated", data: product })
+      });
+      console.log("Successfully forwarded stock-updated event to internal socket handler");
+    } catch (e) {
+      console.error("Failed to emit socket event via internal endpoint", e);
+    }
+
     return success(product);
   } catch (error) {
     console.error("Admin product update failed", error);
