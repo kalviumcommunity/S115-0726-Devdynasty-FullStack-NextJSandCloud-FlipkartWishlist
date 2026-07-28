@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { get, del, post } from "@/services/api";
+import { io } from "socket.io-client";
 import WishlistCard from "@/components/ui/WishlistCard";
 import WishlistSkeleton from "@/components/ui/WishlistSkeleton";
 import Navbar from "@/components/layout/Navbar";
@@ -107,6 +108,30 @@ export default function WishlistPage() {
 
   // Polling logic for stock updates every 30 seconds
   const isPolling = useWishlistPolling(wishlist, setWishlist);
+
+  useEffect(() => {
+    // Initialize WebSocket connection for real-time stock updates in wishlist
+    const socket = io();
+
+    socket.on("stock-updated", (updatedProduct) => {
+      setWishlist((prevWishlist) => {
+        // Only update if the product exists in the wishlist
+        const exists = prevWishlist.some(item => item.productId === updatedProduct.id);
+        if (exists) {
+          return prevWishlist.map(item => 
+            item.productId === updatedProduct.id 
+              ? { ...item, product: { ...item.product, ...updatedProduct } } 
+              : item
+          );
+        }
+        return prevWishlist;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleOptimisticRemove = (id) => {
     setWishlist((prev) => prev.filter((item) => item.id !== id));

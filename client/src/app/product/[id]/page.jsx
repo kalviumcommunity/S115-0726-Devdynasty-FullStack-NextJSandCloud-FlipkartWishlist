@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
+import { io } from "socket.io-client";
 import Navbar from "@/components/layout/Navbar";
 import ProductDetails from "@/components/ui/ProductDetails";
 import ProductSkeleton from "@/components/ui/ProductSkeleton";
@@ -33,6 +34,20 @@ export default function ProductDetailsPage({ params }) {
     if (id) {
       loadProduct();
     }
+
+    // Initialize WebSocket connection for real-time stock updates
+    const socket = io();
+
+    socket.on("stock-updated", (updatedProduct) => {
+      // Only update if the event matches the current product ID
+      if (updatedProduct.id === Number(id)) {
+        setProduct((prev) => ({ ...prev, ...updatedProduct }));
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [id]);
 
   if (loading) {
