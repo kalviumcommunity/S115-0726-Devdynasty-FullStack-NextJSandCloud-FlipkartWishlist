@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { post } from "../../services/api";
-import Navbar from "@/components/layout/Navbar";
 import { validateSignup } from "@/lib/validators/authValidator";
 
 export default function Signup() {
@@ -38,7 +37,6 @@ export default function Signup() {
 
   return (
     <div>
-      <Navbar />
       <main className="auth-page">
         <h1>Signup</h1>
         <form onSubmit={handleSubmit} className="auth-form">
