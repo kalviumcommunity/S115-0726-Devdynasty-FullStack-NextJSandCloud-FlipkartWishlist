@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import StockBadge from "./StockBadge";
 import ProductGallery from "./ProductGallery";
 import { post } from "@/services/api";
-import { showToast } from "@/utils/toast";
+import { showToast, handleApiError } from "@/utils/toast";
 
 function ProductDetails({ product }) {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -34,20 +34,21 @@ function ProductDetails({ product }) {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
+      showToast.error("Unauthorized access. Please log in.");
       window.location.href = "/login";
+      return;
+    }
+    if (product.stock === 0 || product.stock === "Out of stock") {
+      showToast.error("This product is currently out of stock.");
       return;
     }
     setActionLoading(true);
     try {
       await post("/api/cart", { productId: product.id, quantity: 1 });
       showToast.success("🛒 Product added to cart successfully!");
+      window.dispatchEvent(new Event("cart_updated"));
     } catch (err) {
-      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
-        showToast.error("Session expired. Please login again.");
-        window.location.href = "/login";
-      } else {
-        showToast.error(err.message || "Failed to add product to cart. Please log in.");
-      }
+      handleApiError(err, "Failed to add product to cart.");
     } finally {
       setActionLoading(false);
     }
@@ -55,6 +56,7 @@ function ProductDetails({ product }) {
 
   const handleAddToWishlist = async () => {
     if (!isAuthenticated) {
+      showToast.error("Unauthorized access. Please log in.");
       window.location.href = "/login";
       return;
     }
@@ -64,12 +66,7 @@ function ProductDetails({ product }) {
       showToast.success("❤️ Product added to wishlist successfully!");
       window.dispatchEvent(new Event("wishlist_updated"));
     } catch (err) {
-      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized")) {
-        showToast.error("Session expired. Please login again.");
-        window.location.href = "/login";
-      } else {
-        showToast.error(err.message || "Failed to add product to wishlist. Please log in.");
-      }
+      handleApiError(err, "Failed to add product to wishlist.");
     } finally {
       setActionLoading(false);
     }

@@ -163,6 +163,7 @@ export default function CheckoutPage() {
 
       // Redirect to success page
       showToast.success("Order placed successfully!");
+      window.dispatchEvent(new Event("cart_updated"));
       router.push("/order-success");
     } catch (err) {
       console.error("Order placement failed:", err);

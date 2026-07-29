@@ -82,7 +82,7 @@ export default function ProfilePage() {
         </div>
         <h1 className="profile-name">{user.name}</h1>
         <p className="profile-email">{user.email}</p>
-        
+
         <div className="profile-details">
           {user.id && (
             <div className="detail-item">
@@ -107,7 +107,7 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        
+
         <button className="primary-btn logout-btn" onClick={() => {
           localStorage.removeItem("token");
           window.location.href = "/login";

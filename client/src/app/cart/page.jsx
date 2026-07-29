@@ -10,7 +10,7 @@ import CheckoutButton from "@/components/cart/CheckoutButton";
 import EmptyCart from "@/components/ui/EmptyCart";
 import CartSkeleton from "@/components/skeletons/CartSkeleton";
 import { get, del, patch } from "@/services/api";
-import { showToast } from "@/utils/toast";
+import { showToast, handleApiError } from "@/utils/toast";
 
 export default function CartPage() {
   const router = useRouter();
@@ -29,13 +29,12 @@ export default function CartPage() {
     } catch (err) {
       console.error("Error loading cart:", err);
       // Custom friendly error if unauthorized
-      if (err.message.includes("401") || err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("token")) {
+      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized") || err.message?.toLowerCase().includes("token")) {
         setError("Please login to access and manage your cart.");
-        showToast.error("Session expired. Please login again.");
       } else {
         setError("Unable to load cart. Please try again later.");
-        showToast.error("Network error. Please try again later.");
       }
+      handleApiError(err, "Failed to load cart.");
     } finally {
       setLoading(false);
     }
@@ -81,8 +80,9 @@ export default function CartPage() {
         )
       );
       showToast.success("Quantity updated successfully");
+      window.dispatchEvent(new Event("cart_updated"));
     } catch (err) {
-      showToast.error(err.message || "Failed to update quantity. Please check product stock.");
+      handleApiError(err, "Failed to update quantity.");
     } finally {
       setUpdatingItemId(null);
     }
@@ -93,8 +93,9 @@ export default function CartPage() {
       await del(`/api/cart/${itemId}`);
       setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
       showToast.success("Item removed from cart");
+      window.dispatchEvent(new Event("cart_updated"));
     } catch (err) {
-      showToast.error(err.message || "Failed to remove item.");
+      handleApiError(err, "Failed to remove item.");
     }
   };
 
