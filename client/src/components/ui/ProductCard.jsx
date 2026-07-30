@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+import { Heart, ShoppingCart } from "lucide-react";
+
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
@@ -83,7 +85,7 @@ function ProductCard({ product, priority = false }) {
               aria-label="Save to wishlist"
               onClick={handleAddToWishlist}
             >
-              ♡
+              <Heart size={20} strokeWidth={1.5} />
             </button>
             <button
               type="button"
@@ -91,7 +93,7 @@ function ProductCard({ product, priority = false }) {
               aria-label="Add to cart"
               onClick={handleAddToCart}
             >
-              🛒
+              <ShoppingCart size={20} strokeWidth={1.5} />
             </button>
           </div>
         </div>
