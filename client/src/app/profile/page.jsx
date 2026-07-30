@@ -133,10 +133,10 @@ export default function ProfilePage() {
             </div>
             
             <div className="mt-8 sm:mt-0 flex flex-col sm:flex-row gap-4">
-              <Button className="bg-[#2874F0] hover:bg-[#1d5bbd] text-white shadow-sm rounded-md h-11 px-6 font-semibold">
+              <Button className="bg-[#2874F0] hover:bg-[#1d5bbd] text-white shadow-sm rounded-md h-11 px-6 font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
                 <Edit3 size={18} className="mr-2" /> Edit Profile
               </Button>
-              <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-md h-11 px-6 font-semibold" onClick={() => {
+              <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-md h-11 px-6 font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md" onClick={() => {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
               }}>
@@ -149,7 +149,7 @@ export default function ProfilePage() {
         {/* Shopping Statistics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
-            <Card key={index} className="border-none shadow-sm bg-white rounded-xl hover:shadow-md transition-shadow cursor-default group">
+            <Card key={index} className="border-none shadow-sm bg-white rounded-xl hover:shadow-xl transition-all duration-300 ease-in-out cursor-default group hover:-translate-y-1">
               <CardContent className="p-6 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500 font-medium mb-1">{stat.label}</p>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                   {quickActions.map((action, index) => (
-                    <Link href={action.href} key={index} className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-[#F1F3F6] transition-colors group">
+                    <Link href={action.href} key={index} className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-[#F1F3F6] transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-95 group">
                       <div className="h-14 w-14 rounded-full bg-[#F1F3F6] text-slate-600 flex items-center justify-center mb-3 group-hover:bg-[#2874F0] group-hover:text-white transition-all shadow-sm">
                         <action.icon size={24} />
                       </div>
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                 {recentOrders.length > 0 ? (
                   <div className="space-y-4">
                     {recentOrders.map((order, index) => (
-                      <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-[#2874F0]/30 hover:shadow-sm transition-all gap-4">
+                      <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-[#2874F0]/30 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-in-out gap-4">
                         <div className="flex items-center gap-4 w-full sm:w-auto">
                           <img src={order.image} alt={order.name} className="w-20 h-20 rounded-md object-cover border border-slate-100" />
                           <div>
@@ -292,7 +292,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-2">
                           <p className="font-bold text-lg text-slate-900">{order.price}</p>
-                          <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-[#F1F3F6] font-semibold">
+                          <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-[#F1F3F6] font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95">
                             View Details
                           </Button>
                         </div>
@@ -308,7 +308,7 @@ export default function ProfilePage() {
                     <p className="text-slate-500 mb-6 max-w-sm">You haven't placed any orders recently. Discover our latest products and offers!</p>
                     <Link 
                       href="/" 
-                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 bg-[#2874F0] text-white hover:bg-[#1d5bbd] h-11 px-8 shadow-sm"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 bg-[#2874F0] text-white hover:bg-[#1d5bbd] hover:shadow-md h-11 px-8 shadow-sm"
                     >
                       Start Shopping
                     </Link>

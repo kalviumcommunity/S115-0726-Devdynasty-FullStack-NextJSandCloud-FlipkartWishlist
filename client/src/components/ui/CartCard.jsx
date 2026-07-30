@@ -24,9 +24,9 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
   }
 
   return (
-    <div className={`cart-card ${isUpdating ? "updating" : ""} ${quantity > product.stock ? "error" : ""}`}>
-      <div className="cart-card-img-container">
-        <img src={product.image} alt={product.title} className="cart-card-img" />
+    <div className={`cart-card transition-all duration-300 ease-in-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl ${isUpdating ? "updating" : ""} ${quantity > product.stock ? "error" : ""}`}>
+      <div className="cart-card-img-container overflow-hidden">
+        <img src={product.image} alt={product.title} className="cart-card-img transition-transform duration-300 ease-in-out hover:scale-105" />
       </div>
       <div className="cart-card-details">
         <h3 className="cart-card-title">{product.title}</h3>
@@ -50,7 +50,7 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
               type="button"
               onClick={handleDecrement}
               disabled={isUpdating || quantity <= 1}
-              className="quantity-btn decrement-btn"
+              className="quantity-btn decrement-btn transition-all duration-300 ease-in-out hover:scale-110 active:scale-95"
               aria-label="Decrease quantity"
             >
               −
@@ -60,7 +60,7 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
               type="button"
               onClick={handleIncrement}
               disabled={isUpdating || quantity >= product.stock}
-              className="quantity-btn increment-btn"
+              className="quantity-btn increment-btn transition-all duration-300 ease-in-out hover:scale-110 active:scale-95"
               aria-label="Increase quantity"
             >
               +
@@ -69,7 +69,7 @@ export default function CartCard({ item, onQuantityChange, onRemove, updatingIte
           
           <button
             type="button"
-            className="cart-card-remove-btn"
+            className="cart-card-remove-btn transition-all duration-300 ease-in-out hover:scale-105 active:scale-95"
             onClick={() => onRemove(id)}
             disabled={isUpdating}
           >
