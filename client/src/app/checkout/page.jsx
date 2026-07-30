@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import CheckoutForm from "@/components/ui/CheckoutForm";
 import OrderSummary from "@/components/ui/OrderSummary";
@@ -183,9 +184,9 @@ export default function CheckoutPage() {
           <div className="checkout-error-state">
             <p className="error-msg">{error}</p>
             {error.toLowerCase().includes("login") && (
-              <a href="/login" className="login-redirect-btn">
+              <Link href="/login" className="login-redirect-btn">
                 Log In
-              </a>
+              </Link>
             )}
           </div>
         ) : (
@@ -197,9 +198,9 @@ export default function CheckoutPage() {
                   <div className="empty-cart-icon">🛒</div>
                   <h3>Your cart is empty.</h3>
                   <p>Please add items to your cart before proceeding to checkout.</p>
-                  <a href="/" className="continue-shopping-btn">
+                  <Link href="/" className="continue-shopping-btn">
                     Continue Shopping
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <form onSubmit={handlePlaceOrder} noValidate>
