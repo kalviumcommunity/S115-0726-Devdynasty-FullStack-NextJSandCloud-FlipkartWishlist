@@ -153,10 +153,10 @@ export default function Home() {
               Browse featured deals, search by title or category, and open any item to see details.
             </p>
             <div className="hero-actions">
-              <Link href="#products" className="primary-btn">
+              <Link href="#products" className="primary-btn transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
                 Shop now
               </Link>
-              <Link href="/wishlist" className="secondary-btn">
+              <Link href="/wishlist" className="secondary-btn transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
                 View wishlist
               </Link>
             </div>

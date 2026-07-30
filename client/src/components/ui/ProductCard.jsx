@@ -1,11 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import { Heart, ShoppingCart } from "lucide-react";
+
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
 
 function ProductCard({ product, priority = false }) {
+  const router = useRouter();
   const title = product.title || product.name || "Untitled product";
   const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/320x220?text=Flipkart";
   const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
@@ -14,7 +17,7 @@ function ProductCard({ product, priority = false }) {
     e.preventDefault();
     if (!localStorage.getItem("token")) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     if (product.stock === 0 || product.stock === "Out of stock") {
@@ -34,7 +37,7 @@ function ProductCard({ product, priority = false }) {
     e.preventDefault();
     if (!localStorage.getItem("token")) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     try {
@@ -47,14 +50,14 @@ function ProductCard({ product, priority = false }) {
   };
 
   return (
-    <article className="product-card">
-      <div className="product-card-image-wrapper">
+    <article className="product-card transition-all duration-300 ease-in-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl">
+      <div className="product-card-image-wrapper overflow-hidden">
         <Image
           src={imageUrl}
           alt={title}
           width={320}
           height={220}
-          className="product-card-image"
+          className="product-card-image transition-transform duration-300 ease-in-out hover:scale-105"
           priority={priority}
         />
         <div className="product-card-badge">{product.category || "General"}</div>
@@ -72,13 +75,13 @@ function ProductCard({ product, priority = false }) {
         </div>
 
         <div className="product-card-actions">
-          <Link href={`/product/${product.id}`} className="details-link">
+          <Link href={`/product/${product.id}`} className="details-link transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
             View details
           </Link>
           <div className="icon-row">
             <button
               type="button"
-              className="icon-button"
+              className="icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:text-primary hover:shadow-md"
               aria-label="Save to wishlist"
               onClick={handleAddToWishlist}
             >
@@ -86,7 +89,7 @@ function ProductCard({ product, priority = false }) {
             </button>
             <button
               type="button"
-              className="icon-button"
+              className="icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:text-primary hover:shadow-md"
               aria-label="Add to cart"
               onClick={handleAddToCart}
             >
