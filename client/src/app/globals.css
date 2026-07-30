@@ -194,7 +194,7 @@ body {
 .secondary-btn:hover,
 .details-link:hover,
 .icon-button:hover {
-  transform: translateY(-1px);
+  /* Tailwind utilities handle transform now */
 }
 
 .section-block {
@@ -337,8 +337,7 @@ body {
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px -16px rgba(15, 23, 42, 0.2);
+  /* Tailwind utilities handle transform and box-shadow now */
 }
 
 .product-card-image-wrapper {

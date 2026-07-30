@@ -81,12 +81,12 @@ function Navbar({ searchValue = "", onSearchChange }) {
       </div>
 
       <nav className="navbar-links">
-        <Link href="/">Home</Link>
-        {isAdmin && <Link href="/admin">Admin</Link>}
-        <Link href="/wishlist">
+        <Link href="/" className="transition-all duration-300 ease-in-out hover:text-primary hover:underline underline-offset-4">Home</Link>
+        {isAdmin && <Link href="/admin" className="transition-all duration-300 ease-in-out hover:text-primary hover:underline underline-offset-4">Admin</Link>}
+        <Link href="/wishlist" className="transition-all duration-300 ease-in-out hover:text-primary hover:underline underline-offset-4 flex items-center gap-1">
           Wishlist <WishlistBadge />
         </Link>
-        <Link href="/cart">
+        <Link href="/cart" className="transition-all duration-300 ease-in-out hover:text-primary hover:underline underline-offset-4 flex items-center gap-1">
           Cart <CartBadge />
         </Link>
 
@@ -94,18 +94,18 @@ function Navbar({ searchValue = "", onSearchChange }) {
           <div className="profile-dropdown">
             <button
               type="button"
-              className="profile-toggle"
+              className="profile-toggle transition-all duration-300 ease-in-out hover:text-primary hover:scale-105 active:scale-95"
               onClick={() => setDropdownOpen((open) => !open)}
             >
               Account
             </button>
             {dropdownOpen && (
               <div className="dropdown-menu">
-                {isAdmin && <Link href="/admin">Admin Dashboard</Link>}
-                <Link href="/profile">My Profile</Link>
-                <Link href="/wishlist">My Wishlist</Link>
-                <Link href="/cart">My Cart</Link>
-                <button type="button" onClick={handleLogout} className="logout-button">
+                {isAdmin && <Link href="/admin" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-primary">Admin Dashboard</Link>}
+                <Link href="/profile" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-primary">My Profile</Link>
+                <Link href="/wishlist" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-primary">My Wishlist</Link>
+                <Link href="/cart" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-primary">My Cart</Link>
+                <button type="button" onClick={handleLogout} className="logout-button transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-red-500">
                   Logout
                 </button>
               </div>

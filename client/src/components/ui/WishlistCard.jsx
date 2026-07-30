@@ -9,10 +9,10 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
   const moveLabel = product.stock === 0 || product.stock === "Out of stock" ? "Out of stock" : isMoving ? "Moving..." : "Move To Cart";
 
   return (
-    <div className="wishlist-card">
-      <div className="image-container">
+    <div className="wishlist-card transition-all duration-300 ease-in-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl">
+      <div className="image-container overflow-hidden rounded-xl">
         {/* Placeholder image or actual product image */}
-        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} />
+        <img src={product.image || "https://via.placeholder.com/150"} alt={product.title || product.name} className="transition-transform duration-300 ease-in-out hover:scale-105" />
       </div>
       <div className="details">
         <h3 className="line-clamp-2">
@@ -29,7 +29,7 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
         <button
           onClick={onMoveToCart}
           disabled={moveDisabled}
-          className={`btn-move-cart ${moveDisabled ? "btn-disabled" : ""}`}
+          className={`btn-move-cart transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md ${moveDisabled ? "btn-disabled" : ""}`}
           aria-busy={isMoving}
           aria-label={moveDisabled ? "Cannot move to cart" : "Move item to cart"}
         >
@@ -38,7 +38,7 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
         <button 
           onClick={() => onRemove(item.id)} 
           disabled={isMoving} 
-          className="btn-remove"
+          className="btn-remove transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md"
           aria-label="Remove item from wishlist"
         >
           Remove
