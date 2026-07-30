@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
 
 function ProductCard({ product, priority = false }) {
+  const router = useRouter();
   const title = product.title || product.name || "Untitled product";
   const imageUrl = product.image || product.imageUrl || "https://via.placeholder.com/320x220?text=Flipkart";
   const price = typeof product.price === "number" ? product.price : Number(product.price || 0);
@@ -13,7 +15,7 @@ function ProductCard({ product, priority = false }) {
     e.preventDefault();
     if (!localStorage.getItem("token")) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     if (product.stock === 0 || product.stock === "Out of stock") {
@@ -33,7 +35,7 @@ function ProductCard({ product, priority = false }) {
     e.preventDefault();
     if (!localStorage.getItem("token")) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     try {

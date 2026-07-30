@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 
 export default function OrderSuccessPage() {
@@ -84,12 +85,12 @@ export default function OrderSuccessPage() {
           <hr className="divider" />
 
           <div className="success-actions">
-            <a href="/" className="continue-btn">
+            <Link href="/" className="continue-btn">
               Continue Shopping
-            </a>
-            <a href="/orders" className="view-orders-btn">
+            </Link>
+            <Link href="/orders" className="view-orders-btn">
               View Orders
-            </a>
+            </Link>
           </div>
         </div>
       </main>

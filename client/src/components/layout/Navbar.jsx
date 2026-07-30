@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import WishlistBadge from "../ui/WishlistBadge";
 import CartBadge from "../ui/CartBadge";
 
 function Navbar({ searchValue = "", onSearchChange }) {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -61,7 +63,7 @@ function Navbar({ searchValue = "", onSearchChange }) {
     setIsAuthenticated(false);
     setIsAdmin(false);
     setDropdownOpen(false);
-    window.location.href = "/";
+    router.push("/");
   };
 
   return (

@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import StockBadge from "./StockBadge";
 import ProductGallery from "./ProductGallery";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
 
 function ProductDetails({ product }) {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,7 +37,7 @@ function ProductDetails({ product }) {
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     if (product.stock === 0 || product.stock === "Out of stock") {
@@ -57,7 +59,7 @@ function ProductDetails({ product }) {
   const handleAddToWishlist = async () => {
     if (!isAuthenticated) {
       showToast.error("Unauthorized access. Please log in.");
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     setActionLoading(true);

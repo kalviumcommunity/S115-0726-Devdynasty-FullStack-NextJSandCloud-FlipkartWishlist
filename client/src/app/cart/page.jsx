@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { io } from "socket.io-client";
 import Navbar from "@/components/layout/Navbar";
 import CartCard from "@/components/ui/CartCard";
@@ -117,9 +118,9 @@ export default function CartPage() {
           <div className="cart-error-state">
             <p className="error-msg">{error}</p>
             {error.toLowerCase().includes("login") && (
-              <a href="/login" className="login-redirect-btn">
+              <Link href="/login" className="login-redirect-btn">
                 Log In
-              </a>
+              </Link>
             )}
           </div>
         ) : items.length === 0 ? (

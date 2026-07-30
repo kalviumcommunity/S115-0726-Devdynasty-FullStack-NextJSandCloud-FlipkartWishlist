@@ -138,7 +138,7 @@ export default function ProfilePage() {
               </Button>
               <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-md h-11 px-6 font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md" onClick={() => {
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                router.push("/login");
               }}>
                 <LogOut size={18} className="mr-2" /> Logout
               </Button>
@@ -228,7 +228,7 @@ export default function ProfilePage() {
                 <div 
                   onClick={() => {
                     localStorage.removeItem("token");
-                    window.location.href = "/login";
+                    router.push("/login");
                   }}
                   className="flex items-center justify-between p-4 rounded-lg hover:bg-red-50 transition-colors cursor-pointer group mt-2 border-t border-slate-100"
                 >
