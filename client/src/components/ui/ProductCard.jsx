@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { Heart, ShoppingCart } from "lucide-react";
 
 import StockBadge from "./StockBadge";

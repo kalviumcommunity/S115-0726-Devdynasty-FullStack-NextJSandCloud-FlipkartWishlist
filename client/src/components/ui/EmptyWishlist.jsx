@@ -1,92 +1,59 @@
+"use client";
+
+import React from "react";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 
 export default function EmptyWishlist() {
   return (
-    <div className="empty-state">
-      <div className="empty-icon-container">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="empty-icon"
+    <div className="empty-state-wrapper">
+      <div className="flex flex-col items-center justify-center p-8 sm:p-12 my-8 mx-auto w-full max-w-md bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 text-center relative overflow-hidden group">
+        
+        {/* Icon Section */}
+        <div className="relative mb-6 cursor-pointer">
+          {/* Background glow */}
+          <div className="absolute inset-0 bg-[#2874F0]/20 rounded-full blur-xl group-hover:bg-[#2874F0]/30 transition-all duration-500 ease-in-out transform group-hover:scale-110"></div>
+          
+          <div className="relative flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-50 to-[#F1F3F6] border-2 border-white rounded-full shadow-sm transform group-hover:-translate-y-2 transition-all duration-500 ease-in-out">
+            <Heart 
+              className="w-10 h-10 text-[#2874F0] transition-all duration-300 ease-in-out group-hover:scale-110" 
+              strokeWidth={1.5} 
+            />
+          </div>
+        </div>
+        
+        {/* Text Section */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+          Your Wishlist is Empty
+        </h2>
+        <p className="text-gray-500 text-base mb-8 max-w-[90%] leading-relaxed">
+          Your wishlist is waiting for amazing finds! Explore our collection and save your favorite items.
+        </p>
+        
+        {/* CTA Button */}
+        <Link 
+          href="/" 
+          className="relative inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-[#2874F0] to-[#1b5cc2] rounded-full shadow-[0_4px_14px_rgba(40,116,240,0.3)] transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(40,116,240,0.4)] active:translate-y-0"
         >
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
+          <span>Explore Trending Deals</span>
+        </Link>
       </div>
-      <h2>Your wishlist is empty!</h2>
-      <p>Looks like you haven't added anything to your wishlist yet.</p>
-      <Link href="/" className="btn-primary">
-        Browse Products
-      </Link>
+
       <style jsx>{`
-        .empty-state {
-          text-align: center;
-          padding: 80px 24px;
-          background: #fff;
-          border-radius: 16px;
-          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-          margin: 40px auto;
-          max-width: 480px;
-          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        .empty-state-wrapper {
+          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          opacity: 0;
+          transform: translateY(20px);
         }
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .empty-icon-container {
-          display: inline-flex;
-          justify-content: center;
-          align-items: center;
-          width: 96px;
-          height: 96px;
-          background: linear-gradient(135deg, #fce8e6 0%, #fef2f2 100%);
-          color: #d32f2f;
-          border-radius: 50%;
-          margin-bottom: 24px;
-          animation: pulseIcon 2s infinite;
-        }
-        @keyframes pulseIcon {
-          0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.15); }
-          70% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
-        }
-        .empty-state h2 {
-          margin: 0 0 12px 0;
-          color: #1e293b;
-          font-size: 24px;
-          font-weight: 700;
-        }
-        .empty-state p {
-          margin-bottom: 32px;
-          color: #64748b;
-          font-size: 16px;
-          line-height: 1.5;
-        }
-        .btn-primary {
-          display: inline-block;
-          background-color: var(--primary, #2874f0);
-          color: white;
-          padding: 14px 36px;
-          text-decoration: none;
-          border-radius: 999px;
-          font-weight: 600;
-          font-size: 16px;
-          transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(40, 116, 240, 0.25);
-        }
-        .btn-primary:hover {
-          background-color: var(--primary-hover, #1e5bb8);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(40, 116, 240, 0.35);
-        }
-        .btn-primary:active {
-          transform: translateY(0);
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>
