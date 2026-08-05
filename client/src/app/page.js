@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { io } from "socket.io-client";
+import { ArrowUpDown, X, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryFilter from "@/components/ui/CategoryFilter";
@@ -21,6 +22,8 @@ const fallbackProducts = [
     category: "Electronics",
     price: 79999,
     stock: 15,
+    rating: 4.8,
+    reviews: 142,
   },
   {
     id: 2,
@@ -30,6 +33,8 @@ const fallbackProducts = [
     category: "Audio",
     price: 4999,
     stock: 8,
+    rating: 4.6,
+    reviews: 89,
   },
   {
     id: 3,
@@ -39,6 +44,8 @@ const fallbackProducts = [
     category: "Furniture",
     price: 12999,
     stock: 4,
+    rating: 4.5,
+    reviews: 64,
   },
 ];
 
@@ -47,6 +54,7 @@ export default function Home() {
   const [products, setProducts] = useState(fallbackProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("");
+  const [sortBy, setSortBy] = useState("featured");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -55,9 +63,23 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     setSearchTerm(params.get("q") || "");
     setCategory(params.get("category") || "");
+    if (params.get("sort")) setSortBy(params.get("sort"));
     if (params.get("test") === "true") {
       window.alert = () => {};
     }
+  }, []);
+
+  // Global Cmd+K / Ctrl+K keyboard shortcut to focus search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const searchInput = document.getElementById("product-search");
+        if (searchInput) searchInput.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -81,7 +103,6 @@ export default function Home() {
 
     socket.on("stock-updated", (updatedProduct) => {
       setProducts((prevProducts) => {
-        // Only update if the product exists in the list to avoid appending nulls
         const exists = prevProducts.some(p => p.id === updatedProduct.id);
         if (exists) {
           return prevProducts.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
@@ -99,10 +120,21 @@ export default function Home() {
     return Array.from(new Set(products.map((product) => product.category).filter(Boolean)));
   }, [products]);
 
-  const updateFilters = (nextSearchTerm, nextCategory) => {
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    products.forEach((p) => {
+      if (p.category) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [products]);
+
+  const updateFilters = (nextSearchTerm, nextCategory, nextSortBy) => {
     const query = {};
     if (nextSearchTerm?.trim()) query.q = nextSearchTerm.trim();
     if (nextCategory) query.category = nextCategory;
+    if (nextSortBy && nextSortBy !== "featured") query.sort = nextSortBy;
 
     const search = new URLSearchParams(query).toString();
     router.replace(`/?${search}`, { scroll: false });
@@ -110,51 +142,90 @@ export default function Home() {
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
-    updateFilters(value, category);
+    updateFilters(value, category, sortBy);
   };
 
   const handleCategorySelect = (value) => {
     setCategory(value);
-    updateFilters(searchTerm, value);
+    updateFilters(searchTerm, value, sortBy);
   };
 
   const handleClearCategory = () => {
     setCategory("");
-    updateFilters(searchTerm, "");
+    updateFilters(searchTerm, "", sortBy);
   };
 
-  const filteredProducts = useMemo(() => {
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    updateFilters(searchTerm, category, value);
+  };
+
+  const handleResetAllFilters = () => {
+    setSearchTerm("");
+    setCategory("");
+    setSortBy("featured");
+    updateFilters("", "", "featured");
+  };
+
+  const filteredAndSortedProducts = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
 
-    return products.filter((product) => {
+    const filtered = products.filter((product) => {
       const title = (product.title || product.name || "").toLowerCase();
       const categoryValue = (product.category || "").toLowerCase();
+      const description = (product.description || "").toLowerCase();
       const matchesSearch =
         !normalized ||
         title.includes(normalized) ||
-        categoryValue.includes(normalized);
+        categoryValue.includes(normalized) ||
+        description.includes(normalized);
       const matchesCategory = !category || product.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [products, searchTerm, category]);
 
-  const featuredProducts = filteredProducts.slice(0, 3);
+    return [...filtered].sort((a, b) => {
+      const priceA = typeof a.price === "number" ? a.price : Number(a.price || 0);
+      const priceB = typeof b.price === "number" ? b.price : Number(b.price || 0);
+      const ratingA = a.rating ? Number(a.rating) : 4.0;
+      const ratingB = b.rating ? Number(b.rating) : 4.0;
+      const titleA = (a.title || a.name || "").toLowerCase();
+      const titleB = (b.title || b.name || "").toLowerCase();
+
+      switch (sortBy) {
+        case "price-asc":
+          return priceA - priceB;
+        case "price-desc":
+          return priceB - priceA;
+        case "rating-desc":
+          return ratingB - ratingA;
+        case "name-asc":
+          return titleA.localeCompare(titleB);
+        default:
+          return 0;
+      }
+    });
+  }, [products, searchTerm, category, sortBy]);
+
+  const featuredProducts = filteredAndSortedProducts.slice(0, 3);
+  const hasActiveFilters = Boolean(searchTerm.trim() || category || sortBy !== "featured");
 
   return (
     <div className="page-shell">
-      <Navbar searchValue={searchTerm} onSearchChange={setSearchTerm} />
+      <Navbar searchValue={searchTerm} onSearchChange={handleSearchChange} />
 
       <main className="home-page">
         <section className="hero">
           <div className="hero-content">
-            <p className="hero-eyebrow">Fresh picks for every shopper</p>
+            <p className="hero-eyebrow flex items-center justify-center gap-1.5">
+              <Sparkles size={14} className="text-yellow-300" /> Fresh picks for every shopper
+            </p>
             <h1>Discover products that fit your style.</h1>
             <p>
-              Browse featured deals, search by title or category, and open any item to see details.
+              Explore top deals, search catalog items, filter by categories, and experience live real-time stock updates.
             </p>
             <div className="hero-actions">
               <Link href="#products" className="primary-btn transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
-                Shop now
+                Shop collection
               </Link>
               <Link href="/wishlist" className="secondary-btn transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
                 View wishlist
@@ -165,43 +236,109 @@ export default function Home() {
 
         <section className="section-block">
           <div className="filter-panel">
-            <SearchBar value={searchTerm} onChange={handleSearchChange} />
+            <div className="filter-bar-top">
+              <SearchBar value={searchTerm} onChange={handleSearchChange} />
+              
+              <div className="sort-select-wrapper">
+                <ArrowUpDown size={14} className="text-slate-400" />
+                <label htmlFor="sort-by-select">Sort by:</label>
+                <select
+                  id="sort-by-select"
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className="sort-select"
+                >
+                  <option value="featured">Featured Picks</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating-desc">Top Rated</option>
+                  <option value="name-asc">Name (A - Z)</option>
+                </select>
+              </div>
+            </div>
+
             <CategoryFilter
               categories={categories}
               selectedCategory={category}
               onCategorySelect={handleCategorySelect}
               onClear={handleClearCategory}
+              categoryCounts={categoryCounts}
+              totalProductsCount={products.length}
             />
+
+            {/* Active Filters Strip */}
+            {hasActiveFilters && (
+              <div className="active-filters-strip">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Filters:</span>
+                {searchTerm.trim() && (
+                  <span className="active-filter-badge">
+                    Search: "{searchTerm}"
+                    <button type="button" onClick={() => handleSearchChange("")} aria-label="Clear search filter">
+                      <X size={14} />
+                    </button>
+                  </span>
+                )}
+                {category && (
+                  <span className="active-filter-badge">
+                    Category: {category}
+                    <button type="button" onClick={handleClearCategory} aria-label="Clear category filter">
+                      <X size={14} />
+                    </button>
+                  </span>
+                )}
+                {sortBy !== "featured" && (
+                  <span className="active-filter-badge">
+                    Sorted by: {sortBy}
+                    <button type="button" onClick={() => handleSortChange("featured")} aria-label="Reset sort">
+                      <X size={14} />
+                    </button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleResetAllFilters}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 underline underline-offset-2 ml-auto cursor-pointer"
+                >
+                  Reset all
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="section-block">
-          <div className="section-heading">
-            <h2>Featured Products</h2>
-            <p>Trending picks from our catalog.</p>
-          </div>
-          <div className="product-grid featured-grid">
-            {featuredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} priority={index === 0} />
-            ))}
-          </div>
-        </section>
+        {featuredProducts.length > 0 && !category && !searchTerm && (
+          <section className="section-block">
+            <div className="section-heading">
+              <div>
+                <h2>Featured Deals</h2>
+                <p>Top trending picks from our catalog.</p>
+              </div>
+            </div>
+            <div className="product-grid featured-grid">
+              {featuredProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={index === 0} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section id="products" className="section-block">
           <div className="section-heading">
-            <h2>Curated Collection</h2>
-            <p>Showing {filteredProducts.length} result(s).</p>
+            <div>
+              <h2>Curated Collection</h2>
+              <p>Showing {filteredAndSortedProducts.length} of {products.length} item(s).</p>
+            </div>
           </div>
 
           {loading ? (
-            <ProductGrid products={filteredProducts} loading={loading} error={error}>
+            <ProductGrid products={filteredAndSortedProducts} loading={loading} error={error} onResetFilters={handleResetAllFilters}>
               {Array.from({ length: 8 }).map((_, index) => (
                 <ProductSkeleton key={index} />
               ))}
             </ProductGrid>
           ) : (
-            <ProductGrid products={filteredProducts} loading={loading} error={error}>
-              {filteredProducts.map((product) => (
+            <ProductGrid products={filteredAndSortedProducts} loading={loading} error={error} onResetFilters={handleResetAllFilters}>
+              {filteredAndSortedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </ProductGrid>
@@ -211,3 +348,4 @@ export default function Home() {
     </div>
   );
 }
+

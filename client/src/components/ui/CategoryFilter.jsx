@@ -1,12 +1,22 @@
 "use client";
 
-function CategoryFilter({ categories = [], selectedCategory = "", onCategorySelect, onClear }) {
+import React from "react";
+import { Filter, X } from "lucide-react";
+
+function CategoryFilter({
+  categories = [],
+  selectedCategory = "",
+  onCategorySelect,
+  onClear,
+  categoryCounts = {},
+  totalProductsCount = 0,
+}) {
   return (
     <div className="category-filter">
       <div className="category-filter-header">
-        <div>
-          <p className="section-label">Filter by category</p>
-          <p className="section-note">Narrow products using category or choose all.</p>
+        <div className="flex items-center gap-2">
+          <Filter size={16} className="text-blue-600" />
+          <p className="section-label">Browse by Category</p>
         </div>
         <button
           type="button"
@@ -14,42 +24,42 @@ function CategoryFilter({ categories = [], selectedCategory = "", onCategorySele
           onClick={() => onClear?.()}
           disabled={!selectedCategory}
         >
-          {selectedCategory ? "Clear filter" : "Show all"}
+          {selectedCategory ? "Clear filter" : "All categories"}
         </button>
       </div>
 
       <div className="category-filter-buttons">
-        {categories.map((category) => (
-          <button
-            key={category}
-            type="button"
-            className={`category-chip ${selectedCategory === category ? "active" : ""}`}
-            onClick={() => onCategorySelect?.(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-
-      <div className="category-filter-select">
-        <label className="visually-hidden" htmlFor="category-select">
-          Select category
-        </label>
-        <select
-          id="category-select"
-          value={selectedCategory}
-          onChange={(event) => onCategorySelect?.(event.target.value)}
+        <button
+          type="button"
+          className={`category-chip ${!selectedCategory ? "active" : ""}`}
+          onClick={() => onClear?.()}
         >
-          <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+          All
+          {totalProductsCount > 0 && (
+            <span className="category-chip-count">{totalProductsCount}</span>
+          )}
+        </button>
+
+        {categories.map((cat) => {
+          const count = categoryCounts[cat];
+          return (
+            <button
+              key={cat}
+              type="button"
+              className={`category-chip ${selectedCategory === cat ? "active" : ""}`}
+              onClick={() => onCategorySelect?.(cat)}
+            >
+              {cat}
+              {count !== undefined && (
+                <span className="category-chip-count">{count}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 export default CategoryFilter;
+
