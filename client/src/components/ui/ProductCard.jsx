@@ -4,9 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { Heart, ShoppingCart } from "lucide-react";
-
 import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
@@ -21,11 +19,11 @@ function ProductCard({ product, priority = false }) {
   const price = typeof product?.price === "number" ? product.price : Number(product?.price || 0);
 
   // Flipkart Price Bargain calculations
-  const originalPrice = product?.originalPrice 
-    ? Number(product.originalPrice) 
+  const originalPrice = product?.originalPrice
+    ? Number(product.originalPrice)
     : (price > 0 ? Math.round(price * 1.4) : 0);
-  const discountPercent = product?.discount 
-    ? Number(product.discount) 
+  const discountPercent = product?.discount
+    ? Number(product.discount)
     : (originalPrice > price && price > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
 
   // Stock status
@@ -82,13 +80,12 @@ function ProductCard({ product, priority = false }) {
           alt={title}
           width={320}
           height={220}
-          className={`product-card-image transition-all duration-300 ease-in-out hover:scale-105 ${
-            isOutOfStock ? "grayscale opacity-75 filter blur-[0.4px]" : ""
-          }`}
+          className={`product-card-image transition-all duration-300 ease-in-out hover:scale-105 ${isOutOfStock ? "grayscale opacity-75 filter blur-[0.4px]" : ""
+            }`}
           priority={priority}
         />
         <div className="product-card-badge">{product?.category || "General"}</div>
-        
+
         {/* Out-of-Stock Visual Overlay */}
         {isOutOfStock && (
           <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-10 p-2 pointer-events-none">
@@ -139,18 +136,16 @@ function ProductCard({ product, priority = false }) {
               {/* Heart-Beat Wishlist Button */}
               <button
                 type="button"
-                className={`icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:shadow-md ${
-                  isWishlisted ? "text-rose-500 border-rose-200 bg-rose-50/50" : "hover:text-rose-500"
-                }`}
+                className={`icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:shadow-md ${isWishlisted ? "text-rose-500 border-rose-200 bg-rose-50/50" : "hover:text-rose-500"
+                  }`}
                 aria-label="Save to wishlist"
                 onClick={handleAddToWishlist}
               >
                 <Heart
                   size={20}
                   strokeWidth={1.75}
-                  className={`transition-all duration-300 ${
-                    isWishlisted ? "fill-rose-500 text-rose-500" : ""
-                  } ${isHeartBouncing ? "animate-heart-bounce" : ""}`}
+                  className={`transition-all duration-300 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""
+                    } ${isHeartBouncing ? "animate-heart-bounce" : ""}`}
                 />
               </button>
               <button
