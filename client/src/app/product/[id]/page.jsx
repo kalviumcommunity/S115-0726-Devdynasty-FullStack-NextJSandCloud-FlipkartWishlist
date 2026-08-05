@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { io } from "socket.io-client";
+import { ChevronRight, ArrowLeft, PackageSearch } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import ProductDetails from "@/components/ui/ProductDetails";
 import ProductSkeleton from "@/components/ui/ProductSkeleton";
+import RelatedProducts from "@/components/ui/RelatedProducts";
 import { get } from "@/services/api";
 
 export default function ProductDetailsPage({ params }) {
@@ -18,6 +20,7 @@ export default function ProductDetailsPage({ params }) {
   useEffect(() => {
     async function loadProduct() {
       try {
+        setLoading(true);
         const data = await get(`/api/products/${id}`);
         setProduct(data);
       } catch (err) {
@@ -39,7 +42,6 @@ export default function ProductDetailsPage({ params }) {
     const socket = io();
 
     socket.on("stock-updated", (updatedProduct) => {
-      // Only update if the event matches the current product ID
       if (updatedProduct.id === Number(id)) {
         setProduct((prev) => ({ ...prev, ...updatedProduct }));
       }
@@ -54,43 +56,39 @@ export default function ProductDetailsPage({ params }) {
     return (
       <div className="page-shell">
         <Navbar />
-        <main className="product-details-loading">
-          <div className="loading-header">
-            <div className="loading-line short" />
-            <div className="loading-line medium" />
+        <main className="product-details-container">
+          <div className="flex gap-2 mb-6">
+            <div className="skeleton-line short" />
           </div>
-          <div className="loading-grid">
-            <ProductSkeleton />
-            <ProductSkeleton />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-3xl border border-slate-200">
+            <div className="skeleton-image rounded-2xl h-[380px]" />
+            <div className="flex flex-col gap-4">
+              <div className="skeleton-line short" />
+              <div className="skeleton-line medium" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line small mt-auto" />
+            </div>
           </div>
         </main>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
       <div className="page-shell">
         <Navbar />
-        <main className="product-details-error">
-          <p>{error}</p>
-          <Link href="/" className="return-home">
-            Back to Home
-          </Link>
-        </main>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="page-shell">
-        <Navbar />
-        <main className="product-details-error">
-          <p>Product not found.</p>
-          <Link href="/" className="return-home">
-            Back to Home
-          </Link>
+        <main className="product-details-container">
+          <div className="empty-state-card">
+            <div className="empty-state-icon">
+              <PackageSearch size={32} />
+            </div>
+            <h3>{error || "Product Not Found"}</h3>
+            <p>The product you are looking for may have been removed or is temporarily unavailable.</p>
+            <Link href="/" className="empty-state-action inline-flex items-center gap-2">
+              <ArrowLeft size={16} /> Back to Catalog
+            </Link>
+          </div>
         </main>
       </div>
     );
@@ -101,117 +99,61 @@ export default function ProductDetailsPage({ params }) {
       <Navbar />
 
       <main className="product-details-container">
-        <div className="top-row">
-          <Link href="/" className="back-link">
-            ← Back to home
+        {/* Breadcrumb Navigation Bar */}
+        <nav className="breadcrumbs-nav" aria-label="Breadcrumb">
+          <Link href="/" className="breadcrumb-link">
+            Home
           </Link>
-          <span className="product-sku">Product ID: {product.id}</span>
-        </div>
+          <ChevronRight size={14} className="text-slate-400" />
+          <Link href={`/?category=${encodeURIComponent(product.category || "")}`} className="breadcrumb-link">
+            {product.category || "Catalog"}
+          </Link>
+          <ChevronRight size={14} className="text-slate-400" />
+          <span className="breadcrumb-current truncate max-w-[200px] sm:max-w-[350px]">
+            {product.title || product.name || "Product details"}
+          </span>
+        </nav>
 
+        {/* Product Details Component */}
         <ProductDetails product={product} />
+
+        {/* You May Also Like Recommendations */}
+        <RelatedProducts currentProductId={id} category={product.category} />
       </main>
 
       <style jsx>{`
         .product-details-container {
-          max-width: 1100px;
-          margin: 40px auto;
-          padding: 0 24px 40px;
+          max-width: 1240px;
+          margin: 24px auto 48px;
+          padding: 0 20px;
         }
 
-        .top-row {
+        .breadcrumbs-nav {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          gap: 16px;
+          gap: 8px;
           margin-bottom: 24px;
+          font-size: 13px;
           flex-wrap: wrap;
         }
 
-        .back-link {
-          color: var(--foreground);
-          text-decoration: none;
-          font-weight: 600;
-          padding: 8px 14px;
-          border-radius: 999px;
-          border: 1px solid var(--border);
-          background: white;
-          transition: background-color 0.2s ease;
-        }
-
-        .back-link:hover {
-          background: #f8fafc;
-        }
-
-        .product-sku {
+        .breadcrumb-link {
           color: #64748b;
-          font-size: 0.95rem;
-        }
-
-        .product-details-loading,
-        .product-details-error {
-          max-width: 960px;
-          margin: 0 auto;
-          padding: 80px 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 24px;
-          text-align: center;
-        }
-
-        .loading-header {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          margin-bottom: 24px;
-        }
-
-        .loading-line {
-          height: 18px;
-          background: #e2e8f0;
-          border-radius: 999px;
-          animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .loading-line.short {
-          width: 180px;
-        }
-
-        .loading-line.medium {
-          width: 260px;
-        }
-
-        .loading-grid {
-          display: grid;
-          gap: 24px;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          width: 100%;
-        }
-
-        .return-home {
-          color: white;
-          background: var(--primary);
-          padding: 12px 24px;
-          border-radius: 12px;
           text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s ease;
         }
 
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.85;
-          }
-          50% {
-            opacity: 0.45;
-          }
+        .breadcrumb-link:hover {
+          color: #2563eb;
         }
 
-        @media (max-width: 768px) {
-          .loading-grid {
-            grid-template-columns: 1fr;
-          }
+        .breadcrumb-current {
+          color: #0f172a;
+          font-weight: 700;
         }
       `}</style>
     </div>
   );
 }
+

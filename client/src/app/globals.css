@@ -1198,3 +1198,11 @@ body {
   }
 }
 
+/* Related Products Section */
+.related-products-section {
+  margin-top: 48px;
+  padding-top: 36px;
+  border-top: 1px solid #e2e8f0;
+}
+
+
