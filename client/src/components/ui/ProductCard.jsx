@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,26 +11,34 @@ import StockBadge from "./StockBadge";
 import { post } from "@/services/api";
 import { showToast, handleApiError } from "@/utils/toast";
 
+const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80";
+
 function ProductCard({ product, priority = false }) {
   const router = useRouter();
   const [isWishlisted, setIsWishlisted] = useState(Boolean(product?.isWishlisted));
   const [isHeartBouncing, setIsHeartBouncing] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addedToCartSuccess, setAddedToCartSuccess] = useState(false);
+  const [imgSrc, setImgSrc] = useState(product?.image || product?.imageUrl || DEFAULT_FALLBACK_IMAGE);
 
-  const title = product?.title || product?.name || "Untitled product";
-  const imageUrl = product?.image || product?.imageUrl || "https://via.placeholder.com/320x220?text=Flipkart";
+  const title = product?.title || product?.name || "Untitled Product";
   const price = typeof product?.price === "number" ? product.price : Number(product?.price || 0);
 
   // Flipkart Price Bargain calculations
-  const originalPrice = product?.originalPrice 
-    ? Number(product.originalPrice) 
-    : (price > 0 ? Math.round(price * 1.4) : 0);
-  const discountPercent = product?.discount 
-    ? Number(product.discount) 
+  const originalPrice = product?.originalPrice
+    ? Number(product.originalPrice)
+    : (price > 0 ? Math.round(price * 1.35) : 0);
+  const discountPercent = product?.discount
+    ? Number(product.discount)
     : (originalPrice > price && price > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
 
   // Stock status
   const stockNum = typeof product?.stock === "number" ? product.stock : (product?.stock === "Out of stock" ? 0 : Number(product?.stock || 0));
   const isOutOfStock = stockNum === 0 || product?.stock === "Out of stock";
+
+  // Rating fallback mock (4.2 - 4.9) based on product id
+  const rating = product?.rating ? Number(product.rating) : Number((4.0 + (product?.id % 10) * 0.1).toFixed(1));
+  const reviewCount = product?.reviews ? product.reviews : ((product?.id || 1) * 37 + 12);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -43,11 +52,16 @@ function ProductCard({ product, priority = false }) {
       return;
     }
     try {
+      setIsAddingToCart(true);
       await post("/api/cart", { productId: product.id, quantity: 1 });
+      setAddedToCartSuccess(true);
       showToast.success("🛒 Product added to cart successfully!");
       window.dispatchEvent(new Event("cart_updated"));
+      setTimeout(() => setAddedToCartSuccess(false), 1500);
     } catch (err) {
       handleApiError(err, "Failed to add product to cart.");
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -59,7 +73,6 @@ function ProductCard({ product, priority = false }) {
       return;
     }
 
-    // Trigger Heart-Beat burst & elastic bounce micro-animation
     setIsWishlisted(true);
     setIsHeartBouncing(true);
     setTimeout(() => setIsHeartBouncing(false), 600);
@@ -74,53 +87,58 @@ function ProductCard({ product, priority = false }) {
   };
 
   return (
-    <article className="product-card transition-all duration-300 ease-in-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl relative flex flex-col justify-between">
-      <div className="product-card-image-wrapper overflow-hidden relative">
+    <article className="product-card group">
+      <div className="product-card-image-wrapper">
         <Image
-          src={imageUrl}
+          src={imgSrc}
           alt={title}
           width={320}
           height={220}
-          className={`product-card-image transition-all duration-300 ease-in-out hover:scale-105 ${
-            isOutOfStock ? "grayscale opacity-75 filter blur-[0.4px]" : ""
-          }`}
+          onError={() => setImgSrc(DEFAULT_FALLBACK_IMAGE)}
+          className={`product-card-image ${isOutOfStock ? "grayscale opacity-75 filter blur-[0.4px]" : ""}`}
           priority={priority}
         />
+        <div className="product-card-shine" />
         <div className="product-card-badge">{product?.category || "General"}</div>
-        
+
+        {/* Rating Star Badge */}
+        <div className="rating-badge" title={`${rating} stars out of 5 (${reviewCount} ratings)`}>
+          <Star size={12} className="fill-amber-400 text-amber-400" />
+          {rating} <span>({reviewCount})</span>
+        </div>
+
         {/* Out-of-Stock Visual Overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-10 p-2 pointer-events-none">
-            <span className="bg-slate-900/90 text-red-400 font-extrabold text-[11px] sm:text-xs tracking-wider uppercase py-1.5 px-4 rounded shadow-2xl border border-red-500/30 transform -rotate-12 backdrop-blur-md text-center">
+          <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 p-2 pointer-events-none">
+            <span className="bg-slate-900/90 text-red-400 font-extrabold text-xs tracking-wider uppercase py-1.5 px-4 rounded-md shadow-2xl border border-red-500/30 transform -rotate-6 backdrop-blur-md text-center">
               Temporarily Unavailable
             </span>
           </div>
         )}
       </div>
 
-      <div className="product-card-body flex-1 flex flex-col justify-between">
+      <div className="product-card-body">
         <div>
-          <h3>{title}</h3>
+          <h3 className="product-card-title" title={title}>
+            {title}
+          </h3>
           <p className="product-card-description">
-            {product?.description || "High-quality product ready to ship."}
+            {product?.description || "High-quality product ready for express delivery."}
           </p>
         </div>
 
         <div>
-          {/* E-Commerce Price Bargain Styling */}
-          <div className="product-card-meta flex flex-wrap items-center justify-between gap-2 my-3">
-            <div className="price-bargain-container flex items-baseline gap-1.5 flex-wrap">
-              <span className="price font-extrabold text-lg text-slate-900">
-                ₹{price.toLocaleString("en-IN")}
-              </span>
+          <div className="product-card-meta">
+            <div className="price-bargain-container">
+              <span className="price">₹{price.toLocaleString("en-IN")}</span>
               {originalPrice > price && (
                 <del className="text-xs text-slate-400 font-medium line-through">
                   ₹{originalPrice.toLocaleString("en-IN")}
                 </del>
               )}
               {discountPercent > 0 && (
-                <span className="discount-tag text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
-                  ({discountPercent}% OFF)
+                <span className="discount-tag">
+                  {discountPercent}% OFF
                 </span>
               )}
             </div>
@@ -130,36 +148,45 @@ function ProductCard({ product, priority = false }) {
           <div className="product-card-actions">
             <Link
               href={`/product/${product.id}`}
-              className="details-link transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md"
+              className="details-link"
             >
               View details
             </Link>
+
             <div className="icon-row">
-              {/* Heart-Beat Wishlist Button */}
+              {/* Wishlist Button */}
               <button
                 type="button"
-                className={`icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:shadow-md ${
-                  isWishlisted ? "text-rose-500 border-rose-200 bg-rose-50/50" : "hover:text-rose-500"
+                className={`icon-button ${
+                  isWishlisted ? "text-rose-500 border-rose-200 bg-rose-50/60" : "hover:text-rose-500 hover:bg-rose-50/30"
                 }`}
                 aria-label="Save to wishlist"
                 onClick={handleAddToWishlist}
               >
                 <Heart
-                  size={20}
-                  strokeWidth={1.75}
+                  size={19}
+                  strokeWidth={1.8}
                   className={`transition-all duration-300 ${
                     isWishlisted ? "fill-rose-500 text-rose-500" : ""
                   } ${isHeartBouncing ? "animate-heart-bounce" : ""}`}
                 />
               </button>
+
+              {/* Add To Cart Button */}
               <button
                 type="button"
-                className="icon-button transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 hover:text-primary hover:shadow-md"
+                className={`icon-button ${
+                  addedToCartSuccess ? "cart-button-success" : "hover:text-blue-600 hover:bg-blue-50/30"
+                }`}
                 aria-label="Add to cart"
                 onClick={handleAddToCart}
-                disabled={isOutOfStock}
+                disabled={isOutOfStock || isAddingToCart}
               >
-                <ShoppingCart size={20} strokeWidth={1.5} />
+                {addedToCartSuccess ? (
+                  <Check size={19} className="text-emerald-600 stroke-[2.5]" />
+                ) : (
+                  <ShoppingCart size={19} strokeWidth={1.8} />
+                )}
               </button>
             </div>
           </div>
@@ -170,3 +197,4 @@ function ProductCard({ product, priority = false }) {
 }
 
 export default ProductCard;
+

@@ -47,52 +47,73 @@ export default function OrderSummary({ items }) {
       <style jsx>{`
         .order-summary-card {
           background: var(--card-bg);
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.08);
           position: sticky;
           top: 100px;
         }
         .order-summary-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #64748b;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin: 0 0 16px 0;
+          font-size: 20px;
+          font-weight: 800;
+          color: var(--foreground);
+          letter-spacing: -0.5px;
+          margin: 0 0 20px 0;
         }
         .divider {
           border: 0;
-          border-top: 1px solid var(--border);
-          margin: 16px 0;
+          border-top: 1px dashed #cbd5e1;
+          margin: 20px 0;
         }
         .summary-row {
           display: flex;
           justify-content: space-between;
           font-size: 15px;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
+          color: #475569;
+        }
+        .summary-row span:last-child {
+          font-weight: 600;
           color: var(--foreground);
         }
         .free-delivery {
-          color: #10b981;
-          font-weight: 600;
+          color: #10b981 !important;
+          background: #ecfdf5;
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 700;
         }
         .total-row {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 800;
           color: var(--foreground);
           margin-bottom: 0;
+          align-items: center;
+        }
+        .total-row span:last-child {
+          color: var(--primary);
+          font-size: 24px;
         }
         .delivery-savings-msg {
           font-size: 13px;
-          color: #10b981;
-          background: #e6f4ea;
-          padding: 8px 12px;
-          border-radius: 6px;
-          margin: 16px 0 0 0;
-          font-weight: 500;
-          text-align: center;
+          color: #059669;
+          background: #d1fae5;
+          padding: 10px 14px;
+          border-radius: 8px;
+          margin: 20px 0 0 0;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          border: 1px solid #a7f3d0;
+          animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
