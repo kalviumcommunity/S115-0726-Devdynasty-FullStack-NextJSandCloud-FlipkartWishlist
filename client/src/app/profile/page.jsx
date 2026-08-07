@@ -3,14 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  Package, Heart, ShoppingCart, MapPin, CreditCard, 
-  Settings, LogOut, Edit3, ShieldCheck, Bell, 
-  Lock, User, Star, ChevronRight, Activity, Calendar, Key
+  Package, User, CreditCard, Folder, Power, ChevronRight,
+  MapPin, Heart, ShoppingCart, Star, Bell, HelpCircle, Phone, Lock, Edit3, ShieldCheck, Mail, ChevronDown, CheckCircle2, RotateCcw, Truck, Ticket
 } from "lucide-react";
-import {
-  Card, CardContent, CardHeader, CardTitle, CardDescription,
-  Button, Badge, Avatar, AvatarFallback, Separator, Skeleton
-} from "../../components/ui/shadcn";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -18,6 +13,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+  
+  // States for FAQs
+  const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,267 +53,305 @@ export default function ProfilePage() {
     fetchProfile();
   }, [router]);
 
-  if (loading) {
-    return <ProfileSkeleton />;
-  }
+  if (loading) return <ProfileSkeleton />;
 
   if (error) {
     return (
       <div className="min-h-screen bg-[#F1F3F6] flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-red-200 shadow-lg bg-white rounded-xl">
-          <CardContent className="pt-6 flex flex-col items-center text-center">
-            <div className="h-12 w-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mb-4">
-              <Activity size={24} />
-            </div>
-            <p className="text-red-600 font-medium">{error}</p>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-red-200 p-6 flex flex-col items-center text-center">
+           <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+              <Power size={24} />
+           </div>
+           <p className="text-red-600 font-medium">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!user) return null;
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
+  const nameParts = user.name ? user.name.split(' ') : ["", ""];
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(' ') || "";
+  const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : "Recently";
+  const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=F1F3F6&color=2874F0&size=150`;
+
+  // Mock data for new sections
   const stats = [
-    { label: "Total Orders", value: "24", icon: Package, color: "text-[#2874F0]", bg: "bg-blue-50" },
-    { label: "Wishlist Items", value: "12", icon: Heart, color: "text-[#2874F0]", bg: "bg-blue-50" },
+    { label: "Total Orders", value: "12", icon: Package, color: "text-[#2874F0]", bg: "bg-blue-50" },
+    { label: "Wishlist Items", value: "8", icon: Heart, color: "text-[#2874F0]", bg: "bg-blue-50" },
     { label: "Cart Items", value: "3", icon: ShoppingCart, color: "text-[#2874F0]", bg: "bg-blue-50" },
-    { label: "Reviews", value: "8", icon: Star, color: "text-[#2874F0]", bg: "bg-blue-50" },
+    { label: "Reviews", value: "5", icon: Star, color: "text-[#2874F0]", bg: "bg-blue-50" },
   ];
 
-  const quickActions = [
-    { label: "My Orders", icon: Package, href: "/profile/orders" },
-    { label: "Wishlist", icon: Heart, href: "/wishlist" },
-    { label: "Cart", icon: ShoppingCart, href: "/cart" },
-    { label: "Saved Addresses", icon: MapPin, href: "/profile/addresses" },
-    { label: "Payment Methods", icon: CreditCard, href: "/profile/payments" },
-    { label: "Settings", icon: Settings, href: "/profile/settings" },
+  const faqs = [
+    { q: "What happens when I update my email address (or mobile number)?", a: "Your login email id (or mobile number) changes, likewise. You'll receive all your account related communication on your updated email address (or mobile number)." },
+    { q: "When will my account be updated with the new email address?", a: "It happens as soon as you confirm the verification code sent to your email and save the changes." },
+    { q: "What happens to my existing account when I update details?", a: "Updating details doesn't invalidate your account. Your account remains fully functional. You'll continue seeing your Order history, saved information and personal details." }
   ];
-
-  const accountSettings = [
-    { title: "Change Password", desc: "Update your account password", icon: Key },
-    { title: "Privacy & Security", desc: "Manage your data and security", icon: Lock },
-    { title: "Notification Preferences", desc: "Manage email and SMS alerts", icon: Bell },
-  ];
-
-  const recentOrders = [
-    { id: "OD1234567890", name: "Apple MacBook Air M2", price: "₹89,990", date: "Oct 24, 2026", status: "Delivered", image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=150&q=80" },
-    { id: "OD0987654321", name: "Sony WH-1000XM5", price: "₹29,990", date: "Oct 18, 2026", status: "In Transit", image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=150&q=80" },
-  ];
-
-  const memberSinceDate = new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-[#F1F3F6] py-8 px-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#F1F3F6] py-8 font-sans">
+      <div className="w-full max-w-[1280px] mx-auto px-4 lg:px-8 flex flex-col lg:flex-row gap-4 items-start">
         
-        {/* Hero Profile Section */}
-        <Card className="border-none shadow-sm bg-white rounded-xl overflow-hidden">
-          <CardContent className="p-8 sm:flex sm:items-center sm:justify-between">
-            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 text-center sm:text-left">
-              <Avatar className="h-32 w-32 border-4 border-white shadow-md bg-white">
-                <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-blue-50 to-blue-100 text-[#2874F0]">
-                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-slate-900 flex justify-center sm:justify-start items-center gap-2">
-                  {user.name}
-                  <Badge variant="secondary" className="bg-[#2874F0]/10 text-[#2874F0] hover:bg-[#2874F0]/20 rounded-sm px-2">
-                    <ShieldCheck size={14} className="mr-1" /> Verified
-                  </Badge>
-                </h1>
-                <p className="text-lg text-slate-500 font-medium">{user.email}</p>
-                <p className="text-sm text-slate-400 flex items-center justify-center sm:justify-start gap-1">
-                  <Calendar size={14} /> Member since {memberSinceDate}
-                </p>
+        {/* Left Sidebar */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
+          
+          {/* Profile Card */}
+          <div className="bg-white rounded-md shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] p-5 hover:shadow-md transition-shadow duration-300">
+            <div className="flex flex-col items-center text-center">
+              <div className="relative group cursor-pointer mb-4">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100 bg-gray-50 flex items-center justify-center">
+                  <img src={avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Edit3 className="text-white w-6 h-6" />
+                </div>
+              </div>
+              
+              <h2 className="text-xl font-bold text-[#212121] flex items-center gap-1 justify-center">
+                {user.name}
+                <ShieldCheck className="w-4 h-4 text-[#2874F0]" />
+              </h2>
+              <p className="text-sm text-[#878787] mt-1">{user.email}</p>
+              <div className="mt-3 inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                Member since {joinDate}
               </div>
             </div>
-            
-            <div className="mt-8 sm:mt-0 flex flex-col sm:flex-row gap-4">
-              <Button className="bg-[#2874F0] hover:bg-[#1d5bbd] text-white shadow-sm rounded-md h-11 px-6 font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md">
-                <Edit3 size={18} className="mr-2" /> Edit Profile
-              </Button>
-              <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-md h-11 px-6 font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md" onClick={() => {
-                localStorage.removeItem("token");
-                router.push("/login");
-              }}>
-                <LogOut size={18} className="mr-2" /> Logout
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Shopping Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index} className="border-none shadow-sm bg-white rounded-xl hover:shadow-xl transition-all duration-300 ease-in-out cursor-default group hover:-translate-y-1">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500 font-medium mb-1">{stat.label}</p>
-                  <h3 className="text-3xl font-bold text-slate-900 leading-none">{stat.value}</h3>
-                </div>
-                <div className={`p-4 rounded-full ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
-                  <stat.icon size={28} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left Column */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* Personal Information Card */}
-            <Card className="border-none shadow-sm bg-white rounded-xl">
-              <CardHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-                <CardTitle className="text-lg font-bold text-slate-800">Personal Information</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div className="grid grid-cols-2 gap-y-6">
-                  <div className="col-span-2">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</p>
-                    <p className="text-base font-semibold text-slate-900">{user.name}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email Address</p>
-                    <p className="text-base font-semibold text-slate-900">{user.email}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Phone Number</p>
-                    <p className="text-base font-semibold text-slate-900">{user.phone || "+91 98765 43210"}</p>
-                  </div>
-                  <div className="col-span-1">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">User ID</p>
-                    <p className="text-sm font-bold text-slate-700">#{user.id || "USR-9938"}</p>
-                  </div>
-                  <div className="col-span-1">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Role</p>
-                    <Badge variant="outline" className="uppercase tracking-wider text-[10px] border-[#2874F0]/30 text-[#2874F0] font-bold bg-[#2874F0]/5">
-                      {user.role}
-                    </Badge>
-                  </div>
-                  <div className="col-span-2 pt-2 border-t border-slate-100">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Member Since</p>
-                    <p className="text-sm font-semibold text-slate-700">{memberSinceDate}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Account Settings */}
-            <Card className="border-none shadow-sm bg-white rounded-xl">
-              <CardHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-                <CardTitle className="text-lg font-bold text-slate-800">Account Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="p-2">
-                {accountSettings.map((setting, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 rounded-lg hover:bg-[#F1F3F6] transition-colors cursor-pointer group">
-                    <div className="flex items-center gap-4">
-                      <div className="text-slate-400 group-hover:text-[#2874F0] transition-colors">
-                        <setting.icon size={22} />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-800 text-sm">{setting.title}</p>
-                        <p className="text-xs text-slate-500">{setting.desc}</p>
-                      </div>
-                    </div>
-                    <ChevronRight size={18} className="text-slate-300 group-hover:text-[#2874F0] transition-colors" />
-                  </div>
-                ))}
-                <div 
-                  onClick={() => {
-                    localStorage.removeItem("token");
-                    router.push("/login");
-                  }}
-                  className="flex items-center justify-between p-4 rounded-lg hover:bg-red-50 transition-colors cursor-pointer group mt-2 border-t border-slate-100"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-red-400 group-hover:text-red-600 transition-colors">
-                      <LogOut size={22} />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-red-600 text-sm">Logout</p>
-                      <p className="text-xs text-red-400">Sign out of your account</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
           </div>
 
-          {/* Right Column */}
-          <div className="lg:col-span-8 space-y-6">
+          {/* Navigation Menu */}
+          <div className="bg-white rounded-md shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] py-2">
             
-            {/* Quick Actions */}
-            <Card className="border-none shadow-sm bg-white rounded-xl">
-              <CardHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-                <CardTitle className="text-lg font-bold text-slate-800">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {quickActions.map((action, index) => (
-                    <Link href={action.href} key={index} className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-[#F1F3F6] transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-95 group">
-                      <div className="h-14 w-14 rounded-full bg-[#F1F3F6] text-slate-600 flex items-center justify-center mb-3 group-hover:bg-[#2874F0] group-hover:text-white transition-all shadow-sm">
-                        <action.icon size={24} />
-                      </div>
-                      <span className="text-sm font-semibold text-slate-700 text-center group-hover:text-[#2874F0]">{action.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* MY ORDERS */}
+            <div className="border-b border-gray-100">
+              <div className="p-4 flex items-center gap-4 group cursor-pointer">
+                <Package className="w-6 h-6 text-[#2874F0]" />
+                <span className="text-base font-semibold text-[#878787] uppercase">My Orders</span>
+              </div>
+              <div className="flex flex-col pb-2">
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Package className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> My Orders</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><RotateCcw className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Returns</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Truck className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Track Orders</Link>
+              </div>
+            </div>
 
-            {/* Recent Orders */}
-            <Card className="border-none shadow-sm bg-white rounded-xl flex flex-col">
-              <CardHeader className="px-6 pt-6 pb-4 flex flex-row items-center justify-between border-b border-slate-100">
-                <CardTitle className="text-lg font-bold text-slate-800">Recent Orders</CardTitle>
-                <Button variant="ghost" size="sm" className="text-[#2874F0] font-semibold hover:text-[#1d5bbd] hover:bg-blue-50">View All</Button>
-              </CardHeader>
-              <CardContent className="p-6 flex-1">
-                {recentOrders.length > 0 ? (
-                  <div className="space-y-4">
-                    {recentOrders.map((order, index) => (
-                      <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-[#2874F0]/30 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-in-out gap-4">
-                        <div className="flex items-center gap-4 w-full sm:w-auto">
-                          <img src={order.image} alt={order.name} className="w-20 h-20 rounded-md object-cover border border-slate-100" />
-                          <div>
-                            <h4 className="font-semibold text-slate-900 text-base">{order.name}</h4>
-                            <p className="text-sm text-slate-500 mb-1">Order #{order.id}</p>
-                            <Badge variant="secondary" className={`text-xs ${order.status === 'Delivered' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                              {order.status} on {order.date}
-                            </Badge>
-                          </div>
+            {/* ACCOUNT */}
+            <div className="border-b border-gray-100">
+              <div className="p-4 flex items-center gap-4">
+                <User className="w-6 h-6 text-[#2874F0]" />
+                <span className="text-base font-semibold text-[#878787] uppercase">Account</span>
+              </div>
+              <div className="flex flex-col pb-2">
+                <Link href="#" className="py-2.5 pl-14 pr-4 bg-[#F5FAFF] text-[#2874F0] text-[14.5px] font-medium transition-all duration-300 border-l-[3px] border-[#2874F0] flex items-center gap-2"><User className="w-4 h-4"/> Profile Information</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><MapPin className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Saved Addresses</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Heart className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Wishlist</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><ShoppingCart className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Cart</Link>
+              </div>
+            </div>
+
+            {/* PAYMENTS */}
+            <div className="border-b border-gray-100">
+              <div className="p-4 flex items-center gap-4">
+                <CreditCard className="w-6 h-6 text-[#2874F0]" />
+                <span className="text-base font-semibold text-[#878787] uppercase">Payments</span>
+              </div>
+              <div className="flex flex-col pb-2">
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><CreditCard className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Saved Cards</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><CreditCard className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Saved UPI</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex justify-between items-center group border-l-[3px] border-transparent hover:border-[#2874F0]">
+                   <span className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Gift Cards</span>
+                   <span className="text-[#388E3C] font-bold text-xs bg-green-50 px-2 py-0.5 rounded-sm">₹0</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* MY ACTIVITY */}
+            <div className="border-b border-gray-100">
+              <div className="p-4 flex items-center gap-4">
+                <Folder className="w-6 h-6 text-[#2874F0]" />
+                <span className="text-base font-semibold text-[#878787] uppercase">My Activity</span>
+              </div>
+              <div className="flex flex-col pb-2">
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Star className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Reviews & Ratings</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Bell className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Notifications</Link>
+                <Link href="#" className="py-2.5 pl-14 pr-4 text-[#212121] text-[14.5px] hover:bg-[#F5FAFF] hover:text-[#2874F0] transition-all duration-300 flex items-center gap-2 group border-l-[3px] border-transparent hover:border-[#2874F0]"><Ticket className="w-4 h-4 text-gray-400 group-hover:text-[#2874F0]"/> Coupons</Link>
+              </div>
+            </div>
+
+            {/* SUPPORT & LOGOUT */}
+            <div className="flex flex-col">
+              <Link href="#" className="p-4 flex items-center gap-4 group hover:bg-[#F5FAFF] transition-all duration-300">
+                <HelpCircle className="w-6 h-6 text-[#2874F0]" />
+                <span className="text-base font-semibold text-[#878787] group-hover:text-[#2874F0] uppercase transition-colors">Help Center</span>
+              </Link>
+              <button onClick={handleLogout} className="p-4 flex items-center gap-4 group hover:bg-red-50 transition-all duration-300 w-full text-left">
+                <Power className="w-6 h-6 text-red-500" />
+                <span className="text-base font-semibold text-[#878787] group-hover:text-red-500 uppercase transition-colors">Logout</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          
+          {/* Shopping Statistics - New Section */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="bg-white rounded-md shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] p-4 flex items-center gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300 cursor-pointer group">
+                 <div className={`w-12 h-12 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                    <stat.icon className="w-6 h-6" />
+                 </div>
+                 <div>
+                    <h3 className="text-2xl font-bold text-[#212121]">{stat.value}</h3>
+                    <p className="text-xs font-medium text-[#878787] uppercase tracking-wide">{stat.label}</p>
+                 </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-md shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] p-6 md:p-8">
+            
+            {/* Personal Information */}
+            <div className="mb-10">
+              <div className="flex items-center gap-4 mb-6">
+                <h2 className="text-lg font-semibold text-[#212121]">Personal Information</h2>
+                <button className="text-[#2874F0] text-sm font-medium hover:underline flex items-center gap-1">Edit</button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mb-6">
+                <div className="flex flex-col">
+                   <label className="text-xs font-medium text-[#878787] uppercase mb-1">First Name</label>
+                   <input type="text" value={firstName} disabled className="w-full bg-[#f9f9f9] border border-[#E0E0E0] text-[#212121] px-4 h-12 rounded-sm text-sm focus:outline-none focus:border-[#2874F0] transition-colors cursor-not-allowed" />
+                </div>
+                <div className="flex flex-col">
+                   <label className="text-xs font-medium text-[#878787] uppercase mb-1">Last Name</label>
+                   <input type="text" value={lastName} disabled className="w-full bg-[#f9f9f9] border border-[#E0E0E0] text-[#212121] px-4 h-12 rounded-sm text-sm focus:outline-none focus:border-[#2874F0] transition-colors cursor-not-allowed" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-[#878787] uppercase mb-3 block">Your Gender</label>
+                <div className="flex items-center gap-8">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="gender" value="Male" checked={user.gender === 'Male'} disabled className="w-[18px] h-[18px] text-[#2874F0] accent-[#2874F0] cursor-not-allowed" />
+                    <span className="text-sm text-[#212121]">Male</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="gender" value="Female" checked={user.gender === 'Female'} disabled className="w-[18px] h-[18px] text-[#2874F0] accent-[#2874F0] cursor-not-allowed" />
+                    <span className="text-sm text-[#212121]">Female</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="mb-10">
+              <div className="flex items-center gap-4 mb-6">
+                <h2 className="text-lg font-semibold text-[#212121]">Contact Information</h2>
+                <button className="text-[#2874F0] text-sm font-medium hover:underline flex items-center gap-1">Edit</button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-[#878787] uppercase mb-1">Email Address</label>
+                  <input type="email" value={user.email} disabled className="w-full bg-[#f9f9f9] border border-[#E0E0E0] text-[#212121] px-4 h-12 rounded-sm text-sm focus:outline-none cursor-not-allowed" />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-[#878787] uppercase mb-1">Mobile Number</label>
+                  <input type="tel" value={user.phone || ""} disabled className="w-full bg-[#f9f9f9] border border-[#E0E0E0] text-[#212121] px-4 h-12 rounded-sm text-sm focus:outline-none cursor-not-allowed placeholder:text-gray-400" placeholder="Not added yet" />
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Address - New Section */}
+            <div className="mb-10 border border-[#E0E0E0] rounded-md p-5 bg-white relative overflow-hidden group hover:border-[#2874F0]/30 transition-colors">
+              <div className="absolute top-0 left-0 w-1 h-full bg-[#2874F0]"></div>
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="bg-gray-100 text-[#878787] text-[11px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide">Default</span>
+                  <h3 className="font-semibold text-[#212121]">{user.name}</h3>
+                </div>
+                <button className="text-[#2874F0] hover:bg-[#F5FAFF] p-1.5 rounded-full transition-colors"><Edit3 className="w-4 h-4"/></button>
+              </div>
+              <p className="text-sm text-[#212121] mb-1">123 E-commerce Street, Tech Park Area, Block B</p>
+              <p className="text-sm text-[#212121] mb-2">Mumbai, Maharashtra - 400001</p>
+              <p className="text-sm text-[#212121]">Mobile: <span className="font-medium">{user.phone || "Not added"}</span></p>
+            </div>
+
+            {/* Account Security - New Section */}
+            <div className="mb-10">
+               <h2 className="text-lg font-semibold text-[#212121] mb-4">Account Security</h2>
+               <div className="flex flex-wrap gap-4 max-w-3xl">
+                  <div className="flex-1 min-w-[200px] border border-[#E0E0E0] rounded-md p-4 flex items-center justify-between bg-white hover:shadow-sm transition-shadow">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center shrink-0">
+                           <CheckCircle2 className="w-5 h-5 text-green-600"/>
                         </div>
-                        <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-2">
-                          <p className="font-bold text-lg text-slate-900">{order.price}</p>
-                          <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-[#F1F3F6] font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95">
-                            View Details
-                          </Button>
+                        <div>
+                           <p className="text-sm font-medium text-[#212121]">Email</p>
+                           <p className="text-xs text-[#878787]">Verified</p>
                         </div>
-                      </div>
-                    ))}
+                     </div>
                   </div>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
-                    <div className="h-20 w-20 rounded-full bg-[#F1F3F6] flex items-center justify-center mb-6">
-                      <Package size={40} className="text-slate-400" />
+                  
+                  <div className="flex-1 min-w-[200px] border border-[#E0E0E0] rounded-md p-4 flex items-center justify-between bg-white hover:shadow-sm transition-shadow">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-yellow-50 rounded-full flex items-center justify-center shrink-0">
+                           <Phone className="w-5 h-5 text-yellow-600"/>
+                        </div>
+                        <div>
+                           <p className="text-sm font-medium text-[#212121]">Phone</p>
+                           <p className="text-xs text-[#878787]">Pending Verification</p>
+                        </div>
+                     </div>
+                     <button className="text-xs font-semibold text-[#2874F0] hover:underline">Verify</button>
+                  </div>
+                  
+                  <div className="flex-1 min-w-[200px] border border-[#E0E0E0] rounded-md p-4 flex items-center justify-between bg-white hover:shadow-sm transition-shadow">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+                           <Lock className="w-5 h-5 text-[#2874F0]"/>
+                        </div>
+                        <div>
+                           <p className="text-sm font-medium text-[#212121]">Password</p>
+                           <p className="text-xs text-[#878787]">Last changed 3 months ago</p>
+                        </div>
+                     </div>
+                     <button className="text-xs font-semibold text-[#2874F0] hover:underline">Update</button>
+                  </div>
+               </div>
+            </div>
+
+            {/* FAQs Accordion */}
+            <div>
+              <h2 className="text-lg font-semibold text-[#212121] mb-4">FAQs</h2>
+              <div className="border border-[#E0E0E0] rounded-md divide-y divide-[#E0E0E0]">
+                 {faqs.map((faq, index) => (
+                    <div key={index} className="bg-white">
+                       <button 
+                          onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                          className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors focus:outline-none"
+                       >
+                          <span className="text-sm font-medium text-[#212121]">{faq.q}</span>
+                          <ChevronDown className={`w-4 h-4 text-[#878787] transition-transform duration-300 ${openFaq === index ? 'rotate-180' : ''}`} />
+                       </button>
+                       <div className={`px-5 overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? 'max-h-40 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                          <p className="text-sm text-[#878787] leading-relaxed">{faq.a}</p>
+                       </div>
                     </div>
-                    <h4 className="text-xl font-bold text-slate-800 mb-2">No recent orders</h4>
-                    <p className="text-slate-500 mb-6 max-w-sm">You haven't placed any orders recently. Discover our latest products and offers!</p>
-                    <Link 
-                      href="/" 
-                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 bg-[#2874F0] text-white hover:bg-[#1d5bbd] hover:shadow-md h-11 px-8 shadow-sm"
-                    >
-                      Start Shopping
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                 ))}
+              </div>
+              
+              <div className="mt-8">
+                 <button className="text-[#2874F0] text-sm font-semibold hover:underline">Deactivate Account</button>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -326,73 +362,59 @@ export default function ProfilePage() {
 
 function ProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F1F3F6] py-8 px-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#F1F3F6] py-8 font-sans">
+      <div className="w-full max-w-[1280px] mx-auto px-4 lg:px-8 flex flex-col lg:flex-row gap-4 items-start">
         
-        <Card className="border-none shadow-sm bg-white rounded-xl">
-          <CardContent className="p-8 sm:flex sm:items-center sm:justify-between">
-            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6">
-              <Skeleton className="h-32 w-32 rounded-full" />
-              <div className="space-y-3 text-center sm:text-left">
-                <Skeleton className="h-8 w-48 mx-auto sm:mx-0" />
-                <Skeleton className="h-5 w-64 mx-auto sm:mx-0" />
-                <Skeleton className="h-4 w-40 mx-auto sm:mx-0" />
+        {/* Left Sidebar Skeleton */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
+          <div className="bg-white rounded-md shadow-sm p-5 flex flex-col items-center">
+            <div className="w-24 h-24 bg-gray-200 rounded-full animate-pulse mb-4"></div>
+            <div className="h-5 bg-gray-200 rounded w-32 animate-pulse mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-40 animate-pulse mb-3"></div>
+            <div className="h-5 bg-gray-200 rounded-full w-24 animate-pulse"></div>
+          </div>
+          
+          <div className="bg-white rounded-md shadow-sm pb-4 h-[500px] animate-pulse">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="p-4 border-b border-gray-100 flex gap-4">
+                 <div className="h-6 w-6 bg-gray-200 rounded"></div>
+                 <div className="h-5 w-32 bg-gray-200 rounded"></div>
               </div>
-            </div>
-            <div className="mt-8 sm:mt-0 flex gap-4">
-              <Skeleton className="h-11 w-36 rounded-md" />
-              <Skeleton className="h-11 w-32 rounded-md" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="border-none shadow-sm bg-white rounded-xl">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div className="space-y-2 w-full">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-8 w-12" />
-                </div>
-                <Skeleton className="h-14 w-14 rounded-full flex-shrink-0" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4 space-y-6">
-            <Card className="border-none shadow-sm bg-white rounded-xl">
-              <CardHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-                <Skeleton className="h-6 w-48" />
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-y-6">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className={i <= 3 ? "col-span-2 space-y-2" : "col-span-1 space-y-2"}>
-                      <Skeleton className="h-3 w-20" />
-                      <Skeleton className="h-5 w-3/4" />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="lg:col-span-8 space-y-6">
-            <Card className="border-none shadow-sm bg-white rounded-xl h-64">
-              <CardHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-                <Skeleton className="h-6 w-32" />
-              </CardHeader>
-              <CardContent className="p-6">
-                <Skeleton className="h-full w-full rounded-xl" />
-              </CardContent>
-            </Card>
+            ))}
           </div>
         </div>
-
+        
+        {/* Main Content Skeleton */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+             {[1,2,3,4].map(i => (
+                <div key={i} className="bg-white rounded-md p-4 flex items-center gap-4 h-20 animate-pulse">
+                   <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                   <div className="flex-1">
+                      <div className="h-6 bg-gray-200 rounded w-12 mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                   </div>
+                </div>
+             ))}
+          </div>
+          
+          <div className="bg-white rounded-md shadow-sm p-6 md:p-8 h-[700px] animate-pulse">
+             <div className="h-6 w-48 bg-gray-200 rounded mb-6"></div>
+             <div className="flex gap-4 max-w-2xl mb-10">
+               <div className="h-12 w-full bg-gray-200 rounded"></div>
+               <div className="h-12 w-full bg-gray-200 rounded"></div>
+             </div>
+             
+             <div className="h-6 w-40 bg-gray-200 rounded mb-6"></div>
+             <div className="flex gap-4 max-w-2xl mb-10">
+               <div className="h-12 w-full bg-gray-200 rounded"></div>
+               <div className="h-12 w-full bg-gray-200 rounded"></div>
+             </div>
+             
+             <div className="h-28 w-full bg-gray-200 rounded mb-10"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-
