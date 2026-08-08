@@ -63,7 +63,7 @@ export function useWishlistPolling(wishlist, setWishlist, intervalMs = 30000) {
           })
         );
       } catch (err) {
-        console.error("Failed to check stock updates", err);
+        console.error("Failed to check stock updates", err.message);
       } finally {
         if (isMounted) {
           isPollingRef.current = false;

@@ -32,7 +32,7 @@ function RelatedProducts({ currentProductId, category }) {
           setRelatedProducts(matches.slice(0, 4));
         }
       } catch (err) {
-        console.error("Failed to load related products", err);
+        console.error("Failed to load related products", err.message);
       } finally {
         setLoading(false);
       }
