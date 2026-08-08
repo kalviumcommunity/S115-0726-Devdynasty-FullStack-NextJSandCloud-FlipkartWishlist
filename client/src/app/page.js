@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { io } from "socket.io-client";
 import { ArrowUpDown, X, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import SearchBar from "@/components/ui/SearchBar";
@@ -98,22 +97,11 @@ export default function Home() {
 
     fetchProducts();
 
-    // Initialize WebSocket connection for real-time storefront updates
-    const socket = io();
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 30000);
 
-    socket.on("stock-updated", (updatedProduct) => {
-      setProducts((prevProducts) => {
-        const exists = prevProducts.some(p => p.id === updatedProduct.id);
-        if (exists) {
-          return prevProducts.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
-        }
-        return prevProducts;
-      });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const categories = useMemo(() => {

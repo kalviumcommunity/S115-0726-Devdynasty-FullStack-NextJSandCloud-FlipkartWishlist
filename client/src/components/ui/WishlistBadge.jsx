@@ -25,7 +25,7 @@ function WishlistBadge() {
           return;
         }
 
-        console.error("Failed to load wishlist count", error);
+        console.error("Failed to load wishlist count", error.message);
       }
     }
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
-import { io } from "socket.io-client";
+
 import { ChevronRight, ArrowLeft, PackageSearch } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import ProductDetails from "@/components/ui/ProductDetails";
@@ -36,20 +36,9 @@ export default function ProductDetailsPage({ params }) {
 
     if (id) {
       loadProduct();
+      const interval = setInterval(loadProduct, 30000);
+      return () => clearInterval(interval);
     }
-
-    // Initialize WebSocket connection for real-time stock updates
-    const socket = io();
-
-    socket.on("stock-updated", (updatedProduct) => {
-      if (updatedProduct.id === Number(id)) {
-        setProduct((prev) => ({ ...prev, ...updatedProduct }));
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
   }, [id]);
 
   if (loading) {
