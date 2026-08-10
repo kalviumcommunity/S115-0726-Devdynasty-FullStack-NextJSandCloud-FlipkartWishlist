@@ -313,7 +313,7 @@ export default function Home() {
         <section id="products" className="section-block">
           <div className="section-heading">
             <div>
-              <h2>Curated Collection</h2>
+              <h2>Product Grid</h2>
               <p>Showing {filteredAndSortedProducts.length} of {products.length} item(s).</p>
             </div>
           </div>
