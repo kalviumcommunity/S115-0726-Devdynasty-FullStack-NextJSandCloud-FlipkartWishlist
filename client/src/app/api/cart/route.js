@@ -64,19 +64,7 @@ export async function POST(request) {
     });
 
     if (existingItem) {
-      const newQuantity = existingItem.quantity + requestedQuantity;
-      if (newQuantity > product.stock) {
-        return NextResponse.json({ error: "Cannot add more. Quantity exceeds available stock." }, { status: 400 });
-      }
-
-      const updated = await prisma.cart.update({
-        where: { id: existingItem.id },
-        data: {
-          quantity: newQuantity,
-        },
-      });
-
-      return NextResponse.json(updated);
+      return NextResponse.json({ error: "Item already added to cart" }, { status: 409 });
     }
 
     if (requestedQuantity > product.stock) {
