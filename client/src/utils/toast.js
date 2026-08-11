@@ -70,6 +70,8 @@ export const handleApiError = (err, defaultMessage = "An error occurred.") => {
     showToast.error("Unauthorized access. Please log in.");
   } else if (msg.includes("failed to fetch") || msg.includes("network") || msg.includes("timed out")) {
     showToast.error("Network failure. Please try again later.");
+  } else if (msg.includes("item already added to cart")) {
+    showToast.info("ℹ Item already added to cart", { icon: false });
   } else if (msg.includes("stock") || msg.includes("cannot add more")) {
     showToast.error(err.message || "Out of stock item.");
   } else {
