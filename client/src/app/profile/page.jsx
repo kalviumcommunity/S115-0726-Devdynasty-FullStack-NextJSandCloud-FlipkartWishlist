@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
   User, Heart, ShoppingCart, Power, ShieldCheck, 
-  ChevronRight, HelpCircle, CheckCircle2
+  ChevronRight, CheckCircle2, MapPin, Loader2
 } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
-import { get } from "@/services/api";
+import { get, put } from "@/services/api";
+import { showToast, handleApiError } from "@/utils/toast";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,16 @@ export default function ProfilePage() {
   
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+
+  const [isEditingPersonal, setIsEditingPersonal] = useState(false);
+  const [isSavingPersonal, setIsSavingPersonal] = useState(false);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [isSavingContact, setIsSavingContact] = useState(false);
+  const [editEmail, setEditEmail] = useState("");
 
   const router = useRouter();
 
@@ -112,6 +123,64 @@ export default function ProfilePage() {
   const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : "Recently";
   const avatarLetter = firstName ? firstName.charAt(0).toUpperCase() : "U";
 
+  const handleEditPersonal = () => {
+    setEditFirstName(firstName);
+    setEditLastName(lastName === "Not added" ? "" : lastName);
+    setEditAddress(user.address || "");
+    setIsEditingPersonal(true);
+  };
+
+  const handleCancelPersonal = () => {
+    setIsEditingPersonal(false);
+  };
+
+  const handleSavePersonal = async () => {
+    if (!editFirstName.trim()) {
+      return showToast.error("First Name cannot be empty.");
+    }
+    try {
+      setIsSavingPersonal(true);
+      const newName = editLastName.trim() ? `${editFirstName.trim()} ${editLastName.trim()}` : editFirstName.trim();
+      const newAddress = editAddress.trim() || null;
+      
+      const data = await put("/api/auth/me", { name: newName, address: newAddress });
+      setUser(data.user);
+      setIsEditingPersonal(false);
+      showToast.success("Personal information updated successfully");
+    } catch (err) {
+      handleApiError(err, "Failed to update personal information");
+    } finally {
+      setIsSavingPersonal(false);
+    }
+  };
+
+  const handleEditContact = () => {
+    setEditEmail(user.email || "");
+    setIsEditingContact(true);
+  };
+
+  const handleCancelContact = () => {
+    setIsEditingContact(false);
+  };
+
+  const handleSaveContact = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(editEmail)) {
+      return showToast.error("Please enter a valid email address.");
+    }
+    try {
+      setIsSavingContact(true);
+      const data = await put("/api/auth/me", { email: editEmail.trim() });
+      setUser(data.user);
+      setIsEditingContact(false);
+      showToast.success("Contact information updated successfully");
+    } catch (err) {
+      handleApiError(err, "Failed to update contact information");
+    } finally {
+      setIsSavingContact(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans flex flex-col">
       <Navbar />
@@ -168,10 +237,7 @@ export default function ProfilePage() {
 
               {/* SUPPORT & LOGOUT */}
               <div className="flex flex-col py-2">
-                <Link href="#" className="px-6 py-4 flex items-center gap-4 group hover:bg-[#F5F7FA] transition-all duration-200">
-                  <HelpCircle className="w-5 h-5 text-[#64748B] group-hover:text-[#2874F0]" />
-                  <span className="text-[15px] font-semibold text-[#172337] group-hover:text-[#2874F0] transition-colors">Help Center</span>
-                </Link>
+
                 <button onClick={handleLogout} className="px-6 py-4 flex items-center gap-4 group hover:bg-red-50 transition-all duration-200 w-full text-left">
                   <Power className="w-5 h-5 text-red-500" />
                   <span className="text-[15px] font-semibold text-red-600 transition-colors">Logout</span>
@@ -219,25 +285,47 @@ export default function ProfilePage() {
                 <div className="mb-12">
                   <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#E5E7EB]">
                     <h2 className="text-xl font-bold text-[#172337]">Personal Information</h2>
-                    <button className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#2874F0] hover:bg-blue-50 hover:border-[#2874F0] transition-colors">Edit</button>
+                    {!isEditingPersonal ? (
+                      <button onClick={handleEditPersonal} className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#2874F0] hover:bg-blue-50 hover:border-[#2874F0] transition-colors">Edit</button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button onClick={handleCancelPersonal} disabled={isSavingPersonal} className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#64748B] hover:bg-gray-50 transition-colors disabled:opacity-50">Cancel</button>
+                        <button onClick={handleSavePersonal} disabled={isSavingPersonal} className="px-4 py-2 border border-transparent bg-[#2874F0] rounded-lg text-[14px] font-semibold text-white hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50">
+                          {isSavingPersonal && <Loader2 className="w-4 h-4 animate-spin" />}
+                          Save
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
                     <div className="flex flex-col">
                        <label className="text-[13px] font-bold text-[#64748B] uppercase tracking-wider mb-2">First Name</label>
-                       <p className="text-[17px] font-medium text-[#172337]">{firstName}</p>
+                       {isEditingPersonal ? (
+                         <input type="text" value={editFirstName} onChange={(e) => setEditFirstName(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-[#E5E7EB] text-[17px] font-medium text-[#172337] focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]" placeholder="First Name" />
+                       ) : (
+                         <p className="text-[17px] font-medium text-[#172337]">{firstName}</p>
+                       )}
                     </div>
                     <div className="flex flex-col">
                        <label className="text-[13px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Last Name</label>
-                       <p className={`text-[17px] font-medium ${lastName === 'Not added' ? 'text-[#64748B] italic' : 'text-[#172337]'}`}>{lastName}</p>
+                       {isEditingPersonal ? (
+                         <input type="text" value={editLastName} onChange={(e) => setEditLastName(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-[#E5E7EB] text-[17px] font-medium text-[#172337] focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]" placeholder="Last Name" />
+                       ) : (
+                         <p className={`text-[17px] font-medium ${lastName === 'Not added' ? 'text-[#64748B] italic' : 'text-[#172337]'}`}>{lastName}</p>
+                       )}
                     </div>
                     <div className="flex flex-col">
-                       <label className="text-[13px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Role</label>
-                       <div className="inline-flex items-center self-start">
-                          <span className="px-3 py-1 bg-[#F5F7FA] border border-[#E5E7EB] rounded-md text-[14px] font-semibold text-[#172337]">
-                            {user.role}
-                          </span>
-                       </div>
+                       <label className="text-[13px] font-bold text-[#64748B] uppercase tracking-wider mb-2 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5" /> Address
+                       </label>
+                       {isEditingPersonal ? (
+                         <input type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-[#E5E7EB] text-[17px] font-medium text-[#172337] focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]" placeholder="Enter your full address" />
+                       ) : (
+                         <p className={`text-[17px] font-medium ${user.address ? 'text-[#172337]' : 'text-[#64748B] italic'}`}>
+                            {user.address || "Add your address"}
+                         </p>
+                       )}
                     </div>
                   </div>
                 </div>
@@ -246,15 +334,29 @@ export default function ProfilePage() {
                 <div>
                   <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#E5E7EB]">
                     <h2 className="text-xl font-bold text-[#172337]">Contact Information</h2>
-                    <button className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#2874F0] hover:bg-blue-50 hover:border-[#2874F0] transition-colors">Edit</button>
+                    {!isEditingContact ? (
+                      <button onClick={handleEditContact} className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#2874F0] hover:bg-blue-50 hover:border-[#2874F0] transition-colors">Edit</button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button onClick={handleCancelContact} disabled={isSavingContact} className="px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] font-semibold text-[#64748B] hover:bg-gray-50 transition-colors disabled:opacity-50">Cancel</button>
+                        <button onClick={handleSaveContact} disabled={isSavingContact} className="px-4 py-2 border border-transparent bg-[#2874F0] rounded-lg text-[14px] font-semibold text-white hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50">
+                          {isSavingContact && <Loader2 className="w-4 h-4 animate-spin" />}
+                          Save
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
                     <div className="flex flex-col">
                       <label className="text-[13px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Email Address</label>
-                      <div className="flex items-center gap-2">
-                        <p className="text-[17px] font-medium text-[#172337]">{user.email}</p>
-                        <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
-                      </div>
+                      {isEditingContact ? (
+                         <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-[#E5E7EB] text-[17px] font-medium text-[#172337] focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]" placeholder="Enter email address" />
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <p className="text-[17px] font-medium text-[#172337]">{user.email}</p>
+                          <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
