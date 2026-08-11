@@ -20,7 +20,7 @@ export default function WishlistCard({ item, onRemove, onMoveToCart, isMoving })
             {product.title || product.name}
           </Link>
         </h3>
-        <p className="price">${product.price}</p>
+        <p className="price">₹{product.price}</p>
         <div className="stock-info">
           <StockBadge stock={product.stock} />
         </div>
