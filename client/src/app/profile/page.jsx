@@ -71,7 +71,20 @@ export default function ProfilePage() {
     fetchProfileData();
   }, [router]);
 
-  if (loading) return <ProfileSkeleton />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-xl shadow border border-gray-200 p-8 flex flex-col items-center animate-pulse">
+            <div className="w-24 h-24 bg-gray-200 rounded-full mb-4"></div>
+            <div className="h-6 w-32 bg-gray-200 rounded mb-2"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

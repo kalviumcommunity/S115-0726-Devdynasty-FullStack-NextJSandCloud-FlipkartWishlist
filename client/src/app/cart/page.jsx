@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { io } from "socket.io-client";
+
 import Navbar from "@/components/layout/Navbar";
 import CartCard from "@/components/ui/CartCard";
 import OrderSummary from "@/components/ui/OrderSummary";
@@ -28,11 +28,14 @@ export default function CartPage() {
       const data = await get("/api/cart");
       setItems(data);
     } catch (err) {
-      console.error("Error loading cart:", err);
-      // Custom friendly error if unauthorized
-      if (err.message?.includes("401") || err.message?.toLowerCase().includes("unauthorized") || err.message?.toLowerCase().includes("token")) {
+      if (
+        err.message?.includes("401") ||
+        err.message?.toLowerCase().includes("unauthorized") ||
+        err.message?.toLowerCase().includes("token")
+      ) {
         setError("Please login to access and manage your cart.");
       } else {
+        console.error("Error loading cart:", err.message);
         setError("Unable to load cart. Please try again later.");
       }
       handleApiError(err, "Failed to load cart.");
@@ -48,27 +51,8 @@ export default function CartPage() {
       window.alert = () => {};
     }
 
-    // Initialize WebSocket connection for real-time stock updates in cart
-    const socket = io();
-
-    socket.on("stock-updated", (updatedProduct) => {
-      setItems((prevItems) => {
-        // Only update if the product exists in the cart
-        const exists = prevItems.some(item => item.productId === updatedProduct.id);
-        if (exists) {
-          return prevItems.map(item => 
-            item.productId === updatedProduct.id 
-              ? { ...item, product: { ...item.product, ...updatedProduct } } 
-              : item
-          );
-        }
-        return prevItems;
-      });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    const interval = setInterval(fetchCart, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleQuantityChange = async (itemId, newQty) => {

@@ -38,15 +38,15 @@ export default function CheckoutPage() {
       const data = await get("/api/cart");
       setItems(data);
     } catch (err) {
-      console.error("Error loading cart for checkout:", err);
       if (
-        err.message.includes("401") ||
-        err.message.toLowerCase().includes("unauthorized") ||
-        err.message.toLowerCase().includes("token")
+        err.message?.includes("401") ||
+        err.message?.toLowerCase().includes("unauthorized") ||
+        err.message?.toLowerCase().includes("token")
       ) {
         setError("Please login to access and manage your cart.");
         showToast.error("Session expired. Please login again.");
       } else {
+        console.error("Error loading cart for checkout:", err.message);
         setError("Unable to load checkout page. Please try again later.");
         showToast.error("Network error. Please try again later.");
       }

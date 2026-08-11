@@ -26,7 +26,7 @@ function CartBadge() {
           setCount(0);
           return;
         }
-        console.error("Failed to load cart count", error);
+        console.error("Failed to load cart count", error.message);
       }
     }
 
